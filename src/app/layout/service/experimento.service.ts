@@ -1,16 +1,14 @@
-// src/app/services/experimento.service.ts (exemplo de caminho)
+// src/app/services/experimento.service.ts
+
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../enviroments/enviroment';
 
-
-
-// (Opcional) Interface para o que você envia
 export interface ExperimentoRequest {
   nome: string;
   descricao: string;
-  dataInicio: string; // Enviar como string no formato 'YYYY-MM-DD'
+  dataInicio: string; 
   dataFim: string;
   pesquisadorId: number;
 }
@@ -24,30 +22,37 @@ export class ExperimentoService {
 
   constructor(private http: HttpClient) { }
 
-  // Método para CRIAR um novo experimento
+  // === MÉTODO CORRIGIDO AQUI ===
   criarExperimento(experimentoData: ExperimentoRequest): Observable<any> {
-    return this.http.post<any>(this.apiUrl, experimentoData);
+    // 1. Pega o token do localStorage
+    const token = localStorage.getItem('id_token');
+
+    // 2. Cria os cabeçalhos (Headers) com o token
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+
+    // 3. Faz a requisição POST, passando os cabeçalhos
+    return this.http.post<any>(this.apiUrl, experimentoData, { headers: headers });
   }
 
-  // ... (outros métodos como getExperimentos, etc.)
   getExperimentoById(id: number): Observable<any> {
-  const token = localStorage.getItem('id_token');
-  const headers = new HttpHeaders({
-    'Authorization': `Bearer ${token}`
-  });
-  return this.http.get<any>(`${this.apiUrl}/${id}`, { headers: headers });
-}
+    const token = localStorage.getItem('id_token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.get<any>(`${this.apiUrl}/${id}`, { headers: headers });
+  }
 
-// Associa um participante a um experimento
-adicionarParticipante(idExperimento: number, idParticipante: number): Observable<any> {
-  const token = localStorage.getItem('id_token');
-  const headers = new HttpHeaders({
-    'Authorization': `Bearer ${token}`
-  });
-  // A requisição não precisa de corpo (body), apenas a URL
-  return this.http.post<any>(`${this.apiUrl}/${idExperimento}/participantes/${idParticipante}`, null, { headers: headers });
-}
- // <<-- ADICIONE ESTE MÉTODO -->>
+  adicionarParticipante(idExperimento: number, idParticipante: number): Observable<any> {
+    const token = localStorage.getItem('id_token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.post<any>(`${this.apiUrl}/${idExperimento}/participantes/${idParticipante}`, null, { headers: headers });
+  }
+
   getExperimentos(): Observable<any[]> {
     const token = localStorage.getItem('id_token');
     const headers = new HttpHeaders({
