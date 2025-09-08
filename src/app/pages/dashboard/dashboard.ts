@@ -1,25 +1,23 @@
 import { Component } from '@angular/core';
-import { NotificationsWidget } from './components/notificationswidget';
 import { StatsWidget } from './components/statswidget';
-import { RecentSalesWidget } from './components/recentsaleswidget';
-import { BestSellingWidget } from './components/bestsellingwidget';
-import { RevenueStreamWidget } from './components/revenuestreamwidget';
+// 1. Importa o novo nome do componente
+import { ExperimentosRecentesWidget } from './components/experimentos-recentes.component';
 
 @Component({
     selector: 'app-dashboard',
-    imports: [StatsWidget, RecentSalesWidget, BestSellingWidget, RevenueStreamWidget, NotificationsWidget],
+    // 2. Atualiza a lista de imports
+    imports: [StatsWidget, ExperimentosRecentesWidget],
+    standalone: true,
     template: `
-        <div class="grid grid-cols-12 gap-8">
-            <app-stats-widget class="contents" />
-            <div class="col-span-12 xl:col-span-6">
-                <app-recent-sales-widget />
-                <app-best-selling-widget />
+        <div class="grid">
+            <div class="col-12">
+                <app-stats-widget />
             </div>
-            <div class="col-span-12 xl:col-span-6">
-                <app-revenue-stream-widget />
-                <app-notifications-widget />
+            <div class="col-12">
+                <app-experimentos-recentes-widget />
             </div>
         </div>
     `
+    // Eu ajustei o seu HTML com uma estrutura de grid mais comum para evitar problemas de layout.
 })
 export class Dashboard {}

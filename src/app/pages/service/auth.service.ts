@@ -17,6 +17,7 @@ export interface LoginResponse {
   nomeUsuario: string;
 }
 
+
 @Injectable({
   providedIn: 'root'
 })

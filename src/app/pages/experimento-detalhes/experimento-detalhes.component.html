@@ -1,0 +1,80 @@
+<div *ngIf="!experimento">
+    Carregando dados do experimento...
+</div>
+
+<div *ngIf="experimento" class="grid">
+
+    <div class="col-12 md:col-6">
+        <p-card>
+            <ng-template pTemplate="title">
+                {{ experimento.nome }}
+            </ng-template>
+            <ng-template pTemplate="subtitle">
+                Pesquisador Responsável: {{ experimento.pesquisador?.nome }}
+            </ng-template>
+            
+            <p><strong>Descrição:</strong> {{ experimento.descricao }}</p>
+            <p><strong>Status:</strong> {{ experimento.statusExperimento }}</p>
+            <p><strong>Período:</strong> {{ experimento.dataInicio }} a {{ experimento.dataFim }}</p>
+
+            <hr class="my-4">
+
+            <h5>Participantes Inscritos neste Experimento ({{ experimento.participantes?.length || 0 }})</h5>
+            
+            <p-table [value]="experimento.participantes" [tableStyle]="{'min-width': '30rem'}">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Nome</th>
+                        <th>Email</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-participante>
+                    <tr>
+                        <td>{{ participante.nomeCompleto }}</td>
+                        <td>{{ participante.email }}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="2">Nenhum participante inscrito neste experimento ainda.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+        </p-card>
+    </div>
+
+    <div class="col-12 md:col-6 mt-4">
+        <p-card header="Adicionar Participantes ao Experimento">
+            
+            <p-table [value]="todosParticipantes" [tableStyle]="{'min-width': '30rem'}">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Nome</th>
+                        <th>Ação</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-participante>
+                    <tr>
+                        <td>{{ participante.nomeCompleto }}</td>
+                        <td>
+                            <p-button 
+                                icon="pi pi-plus" 
+                                label="Adicionar" 
+                                (click)="adicionarParticipante(participante.id)"
+                                [disabled]="isParticipanteNoExperimento(participante.id)"
+                                styleClass="p-button-sm">
+                            </p-button>
+                        </td>
+                    </tr>
+                </ng-template>
+                 <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="2">Nenhum participante cadastrado no sistema.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+        </p-card>
+    </div>
+</div>

@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
 import { MenuItem } from 'primeng/api';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '../service/layout.service';
+import { AuthService } from '../../pages/service/auth.service';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
     selector: 'app-topbar',
@@ -36,7 +38,10 @@ import { LayoutService } from '../service/layout.service';
                 <span>VIBETRACK</span>
             </a>
         </div>
-
+        <div class="layout-topbar-menu">
+            
+            
+        </div>
         <div class="layout-topbar-actions">
             <div class="layout-config-menu">
                 <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
@@ -63,24 +68,13 @@ import { LayoutService } from '../service/layout.service';
             </button>
 
             <div class="layout-topbar-menu hidden lg:block">
-                <div class="layout-topbar-menu-content">
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-calendar"></i>
-                        <span>Calendar</span>
+                         <button *ngIf="authService.isLoggedIn()" 
+                        (click)="logout()" 
+                        type="button" 
+                        class="layout-topbar-action p-button-danger">
+                        <i class="pi pi-sign-out"></i>
+                        <span>Sair</span>
                     </button>
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-inbox"></i>
-                        <span>Messages</span>
-                    </button>
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-user"></i>
-                        <span>Profile</span>
-                    </button>
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-user"></i>
-                        <span>Butao</span>
-                    </button>
-                </div>
             </div>
         </div>
     </div>`
@@ -88,9 +82,18 @@ import { LayoutService } from '../service/layout.service';
 export class AppTopbar {
     items!: MenuItem[];
 
-    constructor(public layoutService: LayoutService) {}
+    constructor(public layoutService: LayoutService,
+                public authService: AuthService,
+                private router: Router
+    ) {}
 
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
     }
+
+    logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/auth/login']);
+  }
+
 }
