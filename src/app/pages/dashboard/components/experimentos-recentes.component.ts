@@ -5,15 +5,38 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 
-// 1. Nossas importações personalizadas
+// Nossas importações personalizadas
 import { RouterModule } from '@angular/router'; // Para usar o routerLink
 import { ExperimentoService } from '../../../layout/service/experimento.service';
 
 
 @Component({
-  selector: 'app-experimentos-recentes-widget', // Nome do seletor atualizado
+  selector: 'app-experimentos-recentes-widget',
   standalone: true,
   imports: [CommonModule, TableModule, ButtonModule, TagModule, RouterModule],
+  // vvvv ESTILO CSS ADICIONADO AQUI vvvv
+  styles: [`
+    .thumbnail {
+      width: 60px;
+      height: 45px;
+      object-fit: cover; /* Garante que a imagem não fique distorcida */
+      border-radius: 4px;
+      vertical-align: middle; /* Alinha a imagem verticalmente com o texto */
+    }
+
+    .thumbnail-placeholder {
+      width: 60px;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f8f9fa; /* Cor de fundo do placeholder */
+      border-radius: 4px;
+      color: #6c757d; /* Cor do ícone */
+      border: 1px solid #dee2e6;
+    }
+  `],
+  // vvvv TEMPLATE MODIFICADO AQUI vvvv
   template: `
     <div class="card">
         <div class="flex justify-content-between align-items-center mb-5">
@@ -25,7 +48,7 @@ import { ExperimentoService } from '../../../layout/service/experimento.service'
         <p-table [value]="experimentos" [rows]="5" [paginator]="true" responsiveLayout="scroll">
             <ng-template pTemplate="header">
                 <tr>
-                    <th style="width: 45%">Nome do Experimento</th>
+                    <th>Mídia</th> <th style="width: 45%">Nome do Experimento</th>
                     <th>Nº de Participantes</th>
                     <th>Status</th>
                     <th>Pesquisador</th>
@@ -34,6 +57,13 @@ import { ExperimentoService } from '../../../layout/service/experimento.service'
             </ng-template>
             <ng-template pTemplate="body" let-experimento>
                 <tr>
+                    <td>
+                        <img *ngIf="experimento.urlMidia" [src]="experimento.urlMidia" [alt]="experimento.nome" class="thumbnail">
+
+                        <div *ngIf="!experimento.urlMidia" class="thumbnail-placeholder">
+                            <i class="pi pi-image" style="font-size: 1.5rem"></i>
+                        </div>
+                    </td>
                     <td>{{ experimento.nome }}</td>
                     <td>{{ experimento.participantes?.length || 0 }}</td>
                     <td>
@@ -46,29 +76,25 @@ import { ExperimentoService } from '../../../layout/service/experimento.service'
                 </tr>
             </ng-template>
             <ng-template pTemplate="emptymessage">
-                 <tr>
-                    <td colspan="5">Nenhum experimento encontrado.</td>
-                 </tr>
+                  <tr>
+                    <td colspan="6">Nenhum experimento encontrado.</td> </tr>
             </ng-template>
         </p-table>
     </div>
   `
 })
 export class ExperimentosRecentesWidget implements OnInit {
-    // 2. A variável agora se chama 'experimentos' e é do tipo 'any[]'
     experimentos: any[] = [];
 
-    // Injetamos nosso ExperimentoService
     constructor(private experimentoService: ExperimentoService) {}
 
     ngOnInit() {
-        // Buscamos os experimentos do nosso backend via API
+        // Este serviço agora precisa retornar os experimentos com o novo campo 'urlMidia'
         this.experimentoService.getExperimentos().subscribe(data => {
             this.experimentos = data;
         });
     }
 
-    // 4. A lógica do 'getSeverity' foi ajustada para os status do nosso backend
     getSeverity(status: string) {
         switch (status) {
             case 'CONCLUIDO': return 'success';
