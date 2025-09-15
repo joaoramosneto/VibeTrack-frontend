@@ -1,0 +1,41 @@
+<div class="card">
+    <p-toast></p-toast>
+    
+    <h2>Lista de Experimentos</h2>
+
+    <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="start">
+            <button pButton pRipple label="Novo" icon="pi pi-plus" class="p-button-warning mr-2" (click)="novoExperimento()"></button>
+        </ng-template>
+    </p-toolbar>
+
+    <p-table #dt [value]="experimentos()" [rows]="10" [paginator]="true" [rowHover]="true" dataKey="id">
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="min-width: 15rem;">Pesquisador</th>
+                <th style="min-width: 15rem;">Participante</th>
+                <th style="min-width: 10rem;">Tipo</th>
+                <th style="min-width: 10rem;">Data</th>
+                <th style="min-width: 10rem;">Resultado</th>
+                <th>Ações</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-experimento>
+            <tr>
+                <td>{{experimento.pesquisador}}</td>
+                <td>{{experimento.participante}}</td>
+                <td>{{experimento.tipo}}</td>
+                <td>{{experimento.data}}</td>
+                <td>
+                    <p-button label="Ver Resultado" styleClass="p-button-warning" (click)="verResultado(experimento)"></p-button>
+                </td>
+                <td>
+                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-warning mr-2" (click)="editExperimento(experimento)"></button>
+                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteExperimento(experimento)"></button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-confirmdialog [style]="{width: '450px'}"></p-confirmdialog>
