@@ -1,5 +1,3 @@
-// src/app/services/auth.service.ts
-
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
@@ -45,6 +43,16 @@ export class AuthService {
     // Verifica se há um token
     return localStorage.getItem('id_token') !== null;
   }
+
+  // vvv MÉTODO ADICIONADO AQUI vvv
+  /**
+   * Retorna o token de autenticação guardado.
+   * Outros serviços (como o ExperimentoService) usarão este método.
+   */
+  public getToken(): string | null {
+    return localStorage.getItem('id_token');
+  }
+  // ^^^ MÉTODO ADICIONADO AQUI ^^^
 
   private setSession(token: string): void {
     // Guarda o token no localStorage do navegador
