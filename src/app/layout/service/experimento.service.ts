@@ -10,6 +10,7 @@ export interface ExperimentoRequest {
   dataInicio: string;
   dataFim: string;
   pesquisadorId: number;
+  tipoEmocao: string;
 }
 
 @Injectable({
