@@ -1,14 +1,15 @@
+// Caminho: src/app/pages/auth/auth.routes.ts
+
 import { Routes } from '@angular/router';
-import { Access } from './access';
-import { Login } from './login';
-import { Error } from './error';
-// CORRECTION: Import the class named 'Register'
-import { RegisterComponent } from './register.component'; 
+
+// 1. Importa os componentes com os nomes corretos do seu projeto
+import { Login } from './login'; // O seu componente de login
+import { RegisterComponent } from './register.component'; // O seu componente de registro
+import { VerificacaoComponent } from '../verificacao/verificacao.component'; // O novo componente que criamos
 
 export default [
-    { path: 'access', component: Access },
-    { path: 'error', component: Error },
+    // 2. Aponta para os componentes corretos
     { path: 'login', component: Login },
-    // Use the corrected component name here
-    { path: 'register', component: RegisterComponent } 
-] as Routes;
+    { path: 'register', component: RegisterComponent },
+    { path: 'verificar', component: VerificacaoComponent }
+] satisfies Routes;

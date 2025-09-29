@@ -15,7 +15,7 @@ import { ToastModule } from 'primeng/toast';
 import { PesquisadorService, PesquisadorRequest } from '../service/pesquisador.service';
 
 @Component({
-  selector: 'app-register', // MUDANÇA 1: Seletor
+  selector: 'app-register',
   standalone: true,
   imports: [
     CommonModule,
@@ -28,7 +28,6 @@ import { PesquisadorService, PesquisadorRequest } from '../service/pesquisador.s
     ToastModule,
     AppFloatingConfigurator
   ],
-  // MUDANÇA 2: Template adaptado para Registro
   template: `
     <p-toast></p-toast>
     <app-floating-configurator />
@@ -58,9 +57,7 @@ import { PesquisadorService, PesquisadorRequest } from '../service/pesquisador.s
     </div>
   `
 })
-// MUDANÇA 3: Nome da classe
 export class RegisterComponent {
-    // MUDANÇA 4: Modelo de dados para o formulário de registro
     pesquisadorModel: PesquisadorRequest = {
         nome: '',
         email: '',
@@ -68,35 +65,31 @@ export class RegisterComponent {
     };
 
     constructor(
-        // MUDANÇA 5: Injetando o serviço correto
         private pesquisadorService: PesquisadorService,
         private router: Router,
         private messageService: MessageService
     ) {}
 
-    // MUDANÇA 6: Lógica para o clique do botão de registro
     onSubmit(): void {
-    console.log("Botão 'Registrar' foi clicado!"); // <-- LOG 1
-
-    if (!this.pesquisadorModel.nome || !this.pesquisadorModel.email || !this.pesquisadorModel.senha) {
-        console.error("Formulário inválido. Campos faltando."); // <-- LOG 2
-        this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Todos os campos são obrigatórios.' });
-        return;
-    }
-
-    console.log("Formulário válido. Chamando o serviço..."); // <-- LOG 3
+        if (!this.pesquisadorModel.nome || !this.pesquisadorModel.email || !this.pesquisadorModel.senha) {
+            this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Todos os campos são obrigatórios.' });
+            return;
+        }
     
-    this.pesquisadorService.criarPesquisador(this.pesquisadorModel).subscribe({
-      next: (response) => {
-        console.log('Sucesso! Resposta do backend:', response); // <-- LOG 4
-        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Cadastro realizado! Você já pode fazer o login.' });
-        this.router.navigate(['/auth/login']);
-      },
-      error: (err) => {
-        console.error('ERRO na chamada da API:', err); // <-- LOG 5
-        const detail = err.error?.message || 'Falha ao realizar o cadastro. Verifique os dados.';
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: detail });
-      }
+        this.pesquisadorService.criarPesquisador(this.pesquisadorModel).subscribe({
+            next: (response) => {
+                // vvvv A ÚNICA MUDANÇA É AQUI vvvv
+                // 1. Mudamos a mensagem de sucesso
+                this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Cadastro realizado! Verifique seu email para o código de ativação.' });
+                
+                // 2. Redirecionamos para a tela de verificação, passando o email
+                this.router.navigate(['/auth/verificar'], { queryParams: { email: this.pesquisadorModel.email } });
+                // ^^^^ FIM DA MUDANÇA ^^^^
+            },
+            error: (err) => {
+                const detail = err.error?.message || 'Falha ao realizar o cadastro. Verifique os dados.';
+                this.messageService.add({ severity: 'error', summary: 'Erro', detail: detail });
+            }
         });
     }
 }
