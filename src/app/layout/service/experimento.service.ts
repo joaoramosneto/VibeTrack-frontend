@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../enviroments/enviroment';
-import { AuthService } from '../../pages/service/auth.service';// <-- VERIFIQUE SE O CAMINHO ESTÁ CORRETO
+import { AuthService } from '../../pages/service/auth.service'; // <-- VERIFIQUE O CAMINHO
 
 export interface ExperimentoRequest {
   nome: string;
@@ -10,7 +10,6 @@ export interface ExperimentoRequest {
   dataInicio: string;
   dataFim: string;
   pesquisadorId: number;
-  tipoEmocao: string;
 }
 
 @Injectable({
@@ -22,7 +21,7 @@ export class ExperimentoService {
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
-  // Função auxiliar privada para criar os cabeçalhos de autenticação
+  // Função auxiliar para criar os cabeçalhos
   private createAuthHeaders(): HttpHeaders {
     const token = this.authService.getToken();
     if (token) {
@@ -30,38 +29,29 @@ export class ExperimentoService {
         'Authorization': `Bearer ${token}`
       });
     }
-    // Retorna cabeçalhos vazios se não houver token
     return new HttpHeaders();
   }
 
   /**
-   * MÉTODO MODIFICADO: Aceita FormData e adiciona o token manualmente.
+   * MÉTODO CORRIGIDO: Aceita FormData e adiciona o token manualmente.
    */
   criarExperimento(formData: FormData): Observable<any> {
     const headers = this.createAuthHeaders();
-    // Para FormData, não definimos 'Content-Type'. O navegador faz isso.
+    // Para FormData, não definimos 'Content-Type'. O navegador faz isso sozinho.
     return this.http.post<any>(this.apiUrl, formData, { headers: headers });
   }
 
-  /**
-   * MÉTODO MODIFICADO: Adiciona o token manualmente.
-   */
+  // Métodos restantes com a adição manual do token
   getExperimentoById(id: number): Observable<any> {
     const headers = this.createAuthHeaders();
     return this.http.get<any>(`${this.apiUrl}/${id}`, { headers: headers });
   }
 
-  /**
-   * MÉTODO MODIFICADO: Adiciona o token manualmente.
-   */
   adicionarParticipante(idExperimento: number, idParticipante: number): Observable<any> {
     const headers = this.createAuthHeaders();
     return this.http.post<any>(`${this.apiUrl}/${idExperimento}/participantes/${idParticipante}`, null, { headers: headers });
   }
 
-  /**
-   * MÉTODO MODIFICADO: Adiciona o token manualmente.
-   */
   getExperimentos(): Observable<any[]> {
     const headers = this.createAuthHeaders();
     return this.http.get<any[]>(this.apiUrl, { headers: headers });

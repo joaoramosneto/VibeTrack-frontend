@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { AppLayout } from './app/layout/component/app.layout';
 import { Dashboard } from './app/pages/dashboard/dashboard';
+import { CadastroExperimentoComponent } from './app/pages/cadastro-experimento/cadastro-experimento';
+import { CadastroParticipanteComponent } from './app/pages/cadastro-participante/cadastro-participante';
 import { authGuard } from '../src/app/guards/auth.guard';
 
 // 1. Imports dos seus novos componentes
@@ -9,31 +11,25 @@ import { CadastroExperimentoComponent } from './app/pages/cadastro-experimento/c
 import { ExperimentoDetalhesComponent } from './app/pages/experimento-detalhes/experimento-detalhes.component'; // Detalhes
 import { CadastroParticipanteComponent } from './app/pages/cadastro-participante/cadastro-participante'; // Cadastro Participante
 
-
 export const appRoutes: Routes = [
     {
         path: '',
         component: AppLayout,
-        canActivate: [authGuard],
+        canActivate: [authGuard], // A ÁREA PROTEGIDA
         children: [
-            // Redireciona a rota vazia para o dashboard
-            { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-
-            // Rotas principais
-            { path: 'dashboard', component: Dashboard },
-
-            // Rotas de Experimentos
-            { path: 'experimentos', component: ExperimentosComponent }, // Rota para a lista
-            { path: 'cadastro-experimento', component: CadastroExperimentoComponent }, // Rota para o formulário de cadastro
-            { path: 'experimentos/:id', component: ExperimentoDetalhesComponent }, // Rota para detalhes de um experimento
-
-            // Rota de Participantes
+            { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, 
             { path: 'participantes/novo', component: CadastroParticipanteComponent },
+            { path: 'dashboard', component: Dashboard },
+            { path: 'cadastro-experimento', component: CadastroExperimentoComponent },
+            { path: 'experimentos/:id', component: ExperimentoDetalhesComponent }
         ]
     },
-    // Rota de autenticação
-    { path: 'auth', loadChildren: () => import('./app/pages/auth/auth.routes') },
+    // A ÁREA PÚBLICA DE AUTENTICAÇÃO
+    { 
+        path: 'auth', 
+        loadChildren: () => import('./app/pages/auth/auth.routes') 
+    },
 
-    // Rota "catch-all" para qualquer outra URL não encontrada
+    // Rota "catch-all"
     { path: '**', redirectTo: '/dashboard' }
 ];

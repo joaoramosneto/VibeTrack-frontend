@@ -1,0 +1,37 @@
+<p-toast></p-toast>
+
+<div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
+    <div class="flex flex-col items-center justify-center">
+        <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
+            <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
+                
+                <div class="text-center mb-8">
+                    <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Verifique sua Conta</div>
+                    <span class="text-muted-color font-medium">
+                        Enviamos um código de 6 dígitos para o seu email.
+                    </span>
+                    <div *ngIf="userEmail" class="mt-3 font-bold text-primary">{{ userEmail }}</div>
+                </div>
+
+                <div>
+                    <form #verificationForm="ngForm" (ngSubmit)="onSubmit()">
+                        <label for="codigo" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2 text-center mb-8">Código de Verificação</label>
+                       
+                      <div class="flex justify-center">
+  <input pInputText id="codigo" type="text" placeholder="_ _ _ _ _ _"
+    class="w-full md:w-[30rem] mb-6 text-center text-2xl"
+    [(ngModel)]="codigo" name="codigo" required minlength="6" maxlength="6" />
+</div>
+
+
+                        <p-button label="Verificar Conta" styleClass="w-full" (click)="onSubmit()" [disabled]="!verificationForm.form.valid"></p-button>
+                    </form>
+                    <div class="text-center mt-4">
+                        <a class="text-muted-color font-medium cursor-pointer">Não recebeu o código? <span class="text-primary">Reenviar</span></a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
