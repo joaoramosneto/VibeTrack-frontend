@@ -24,25 +24,22 @@ export class AppMenu implements OnInit {
                 label: 'Home',
                 items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
             },
-            // SEÇÃO ADICIONADA
             {
                 label: 'Experimentos',
                 items: [
+                    // LINHA ADICIONADA AQUI:
+                    { label: 'Lista de Experimentos', icon: 'pi pi-fw pi-table', routerLink: ['/experimentos'] },
+                    
                     { label: 'Cadastro de Experimento', icon: 'pi pi-fw pi-flask', routerLink: ['/cadastro-experimento'] },
-                    { label: 'Ver Detalhes ', icon: '', routerLink: ['/experimentos', '1'] }
+                    { label: 'Ver Detalhes', icon: 'pi pi-fw pi-search', routerLink: ['/experimentos', '1'] }
                 ]
             },
             {
                 label: 'Participantes',
                 items: [
-                    { label: 'Cadastro de Participante', icon: 'pi pi-fw pi-flask', routerLink: ['/participantes/novo'] }
+                    { label: 'Cadastro de Participante', icon: 'pi pi-fw pi-user-plus', routerLink: ['/participantes/novo'] }
                 ]
             },
-            // RESTANTE DO MENU ORIGINAL RESTAURADO
-            
-            
-            
-           
         ];
     }
 }

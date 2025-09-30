@@ -4,7 +4,12 @@ import { Dashboard } from './app/pages/dashboard/dashboard';
 import { CadastroExperimentoComponent } from './app/pages/cadastro-experimento/cadastro-experimento';
 import { CadastroParticipanteComponent } from './app/pages/cadastro-participante/cadastro-participante';
 import { authGuard } from '../src/app/guards/auth.guard';
-import { ExperimentoDetalhesComponent } from './app/pages/experimento-detalhes/experimento-detalhes.component';
+
+// 1. Imports dos seus novos componentes
+import { ExperimentosComponent } from './app/pages/experimentos/experimentos.component'; // Listagem
+import { CadastroExperimentoComponent } from './app/pages/cadastro-experimento/cadastro-experimento'; // Cadastro
+import { ExperimentoDetalhesComponent } from './app/pages/experimento-detalhes/experimento-detalhes.component'; // Detalhes
+import { CadastroParticipanteComponent } from './app/pages/cadastro-participante/cadastro-participante'; // Cadastro Participante
 
 export const appRoutes: Routes = [
     {
