@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, ViewChild } from '@angular/core';
-import { Router } from '@angular/router'; // Importe o Router
+import { Router } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table, TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
@@ -12,80 +12,128 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
-export interface Experimento {
-    id?: number;
-    pesquisador?: string;
-    participante?: string;
-    tipo?: string;
-    data?: string;
-}
+// 1. IMPORTAR O SERVICE E A INTERFACE CORRETA
+import { Experimento, ExperimentoService } from '../../layout/service/experimento.service';
 
 @Component({
-    selector: 'app-experimentos',
-    standalone: true,
-    imports: [
-        CommonModule, TableModule, FormsModule, ButtonModule, RippleModule,
-        ToastModule, ToolbarModule, DialogModule, InputTextModule, ConfirmDialogModule
-    ],
-    templateUrl: './experimentos.component.html',
-    providers: [MessageService, ConfirmationService]
+  selector: 'app-experimentos',
+  standalone: true,
+  imports: [
+    CommonModule, TableModule, FormsModule, ButtonModule, RippleModule,
+    ToastModule, ToolbarModule, DialogModule, InputTextModule, ConfirmDialogModule
+  ],
+  templateUrl: './experimentos.component.html', // Assumindo que você tem um HTML separado
+  providers: [MessageService, ConfirmationService]
 })
 export class ExperimentosComponent implements OnInit {
-    experimentos = signal<Experimento[]>([]);
-    experimento: Experimento = {};
-    selectedExperimentos!: Experimento[] | null;
-    experimentoDialog: boolean = false;
+  
+  // O signal agora é do tipo da interface que validamos
+  experimentos = signal<Experimento[]>([]);
+  
+  // Objeto para edição no dialog
+ // Objeto para edição no dialog
+experimento: Experimento = { id: 0, nome: '', descricao: '', dataInicio: '', dataFim: '', pesquisador: { id: 0, nome: '' } }; // <-- CORRETO: 'pesquisador' é um objeto
+  
+  selectedExperimentos!: Experimento[] | null;
+  experimentoDialog: boolean = false;
 
-    @ViewChild('dt') dt!: Table;
+  @ViewChild('dt') dt!: Table;
 
-    constructor(
-        private messageService: MessageService,
-        private confirmationService: ConfirmationService,
-        private router: Router // Injete o Router
-    ) {}
+  constructor(
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService,
+    private router: Router,
+    private experimentoService: ExperimentoService // 2. INJETAR O SERVICE
+  ) {}
 
-    ngOnInit() {
-        this.experimentos.set([
-            { id: 1, pesquisador: 'Dr. João', participante: 'Participante 1', tipo: 'Tipo A', data: '2024-07-25' },
-            { id: 2, pesquisador: 'Dra. Maria', participante: 'Participante 2', tipo: 'Tipo B', data: '2024-07-26' },
-            { id: 3, pesquisador: 'Dr. Carlos', participante: 'Participante 3', tipo: 'Tipo A', data: '2024-07-27' }
-        ]);
-    }
+  ngOnInit() {
+    // 3. CARREGAR OS DADOS REAIS AO INICIAR O COMPONENTE
+    this.carregarExperimentos();
+  }
 
-    // Função que leva para a página de cadastro
-    novoExperimento() {
-        this.router.navigate(['/cadastro-experimento']);
-    }
-    
-    verResultado(experimento: Experimento) {
-        this.router.navigate(['/experimentos', experimento.id]);
-    }
+  carregarExperimentos() {
+    this.experimentoService.getExperimentos().subscribe({
+      next: (dados) => {
+        this.experimentos.set(dados);
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar a lista de experimentos.' });
+        console.error(err);
+      }
+    });
+  }
 
-    deleteExperimento(experimento: Experimento) {
-        this.confirmationService.confirm({
-            message: 'Tem certeza que deseja excluir o experimento?',
-            header: 'Confirmar',
-            icon: 'pi pi-exclamation-triangle',
-            accept: () => {
-                this.experimentos.set(this.experimentos().filter((val) => val.id !== experimento.id));
-                this.experimento = {};
-                this.messageService.add({
-                    severity: 'success', summary: 'Sucesso', detail: 'Experimento Deletado', life: 3000
-                });
-            }
+  novoExperimento() {
+    // A rota deve ser a mesma do seu componente de cadastro
+    this.router.navigate(['/cadastro-experimento']);
+  }
+  
+  verResultado(experimento: Experimento) {
+    // Esta rota pode ser para uma página de detalhes do experimento
+    this.router.navigate(['/experimentos', experimento.id]);
+  }
+
+  deleteExperimento(experimento: Experimento) {
+    this.confirmationService.confirm({
+      message: `Tem certeza que deseja excluir o experimento "${experimento.nome}"?`,
+      header: 'Confirmar Exclusão',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        // 4. CHAMAR O SERVICE PARA DELETAR
+        this.experimentoService.deleteExperimento(experimento.id).subscribe({
+          next: () => {
+            // Se o backend confirmou, remove da lista local
+            this.experimentos.update(lista => lista.filter((val) => val.id !== experimento.id));
+            this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Experimento Deletado', life: 3000 });
+          },
+          error: (err) => {
+            this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível deletar o experimento.' });
+            console.error(err);
+          }
         });
-    }
+      }
+    });
+  }
 
-    editExperimento(experimento: Experimento) {
-        this.experimento = { ...experimento };
-        this.experimentoDialog = true;
-    }
+  editExperimento(experimento: Experimento) {
+    // Clona o objeto para o formulário de edição para não alterar a tabela diretamente
+    this.experimento = { ...experimento }; 
+    this.experimentoDialog = true;
+  }
 
-    hideDialog() {
-        this.experimentoDialog = false;
-    }
+  hideDialog() {
+    this.experimentoDialog = false;
+  }
 
-    saveExperimento() {
-        this.hideDialog();
-    }
+  saveExperimento() {
+    // 5. CHAMAR O SERVICE PARA ATUALIZAR
+    // O backend espera um ExperimentoRequestDTO, então enviamos apenas os campos necessários
+    const dadosParaAtualizar = {
+        nome: this.experimento.nome,
+        descricao: this.experimento.descricao,
+        dataInicio: this.experimento.dataInicio,
+        dataFim: this.experimento.dataFim
+        // adicione outros campos do DTO de request se necessário
+    };
+      
+    this.experimentoService.updateExperimento(this.experimento.id, dadosParaAtualizar).subscribe({
+        next: (experimentoAtualizado) => {
+            // Atualiza a lista local com os dados retornados pelo backend
+            this.experimentos.update(lista => {
+                const index = lista.findIndex(item => item.id === experimentoAtualizado.id);
+                const novaLista = [...lista];
+                if (index !== -1) {
+                    novaLista[index] = experimentoAtualizado;
+                }
+                return novaLista;
+            });
+            this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Experimento Atualizado', life: 3000 });
+            this.hideDialog(); // Fecha o dialog após o sucesso
+        },
+        error: (err) => {
+            this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível atualizar o experimento.' });
+            console.error(err);
+        }
+    });
+  }
 }

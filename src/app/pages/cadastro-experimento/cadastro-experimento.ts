@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router'; // Importação do Router
 import { CommonModule, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FileUploadModule } from 'primeng/fileupload';
@@ -11,9 +12,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { TextareaModule } from 'primeng/textarea';
 import { DividerModule } from 'primeng/divider';
 import { ExperimentoRequest, ExperimentoService } from '../../layout/service/experimento.service';
-
-// vvv IMPORTAÇÃO CORRIGIDA AQUI vvv
-import { AuthService } from '../service/auth.service';
+import { AuthService } from '../service/auth.service'; // Importação do AuthService
 
 @Component({
   selector: 'app-cadastro-experimento',
@@ -56,21 +55,35 @@ import { AuthService } from '../service/auth.service';
 
           <div class="field flex flex-col mb-4">
             <label for="arquivoMidia" class="font-semibold mb-2">Anexar Mídia (Opcional)</label>
-            <input type="file" id="arquivoMidia" (change)="onFileSelected($event)">
+            <input type="file" id="arquivoMidia" (change)="onFileSelected($event)" class="p-inputtext">
             <div *ngIf="selectedFile" class="mt-2">
-                <span class="font-semibold">Arquivo selecionado:</span> {{ selectedFile.name }}
+              <span class="font-semibold">Arquivo selecionado:</span> {{ selectedFile.name }}
             </div>
           </div>
           
         </div>
 
         <div class="col-12 md:col-6">
+          <div class="field flex flex-col mb-4">
+              <label for="emocao" class="font-semibold mb-2">Tipo de Emoção a ser Induzida:</label>
+              <p-dropdown id="emocao" 
+                          [options]="tiposDeEmocao" 
+                          [(ngModel)]="emocaoSelecionada" 
+                          optionLabel="nome" 
+                          placeholder="Selecione uma emoção">
+              </p-dropdown>
           </div>
+
+          <div class="field flex flex-col mb-4">
+            <label for="descricao" class="font-semibold mb-2">Descrição do Ambiente:</label>
+            <textarea pInputTextarea id="descricao" [(ngModel)]="descricaoAmbiente" rows="5"></textarea>
+          </div>
+        </div>
       </div>
 
       <p-divider></p-divider>
       <div class="flex justify-content-end">
-          <p-button label="Cadastrar" icon="pi pi-check" styleClass="w-auto" (click)="onSubmit()"></p-button>
+          <p-button label="Cadastrar" icon="pi pi-check" styleClass="w-auto" (click)="onSubmit()" [disabled]="!isFormValid()"></p-button>
       </div>
     </div>
   `,
@@ -87,7 +100,8 @@ export class CadastroExperimentoComponent implements OnInit {
     descricao: '',
     dataInicio: '',
     dataFim: '',
-    pesquisadorId: 0 // Será preenchido no momento do envio
+    pesquisadorId: 0, 
+    tipoEmocao: ''
   };
 
   selectedFile: File | null = null;
@@ -95,7 +109,8 @@ export class CadastroExperimentoComponent implements OnInit {
   constructor(
     private experimentoService: ExperimentoService, 
     private messageService: MessageService,
-    private authService: AuthService // Injetando o AuthService
+    private authService: AuthService,
+    private router: Router 
   ) {}
 
   ngOnInit() {
@@ -113,8 +128,19 @@ export class CadastroExperimentoComponent implements OnInit {
       this.selectedFile = file;
     }
   }
+  
+  // Função para validar se os campos obrigatórios estão preenchidos
+  isFormValid(): boolean {
+    return !!this.experimentoModel.nome && !!this.experimentoModel.dataInicio && !!this.emocaoSelecionada;
+  }
 
+  // Valida o formulário, obtém o ID, atribui os dados e redireciona
   onSubmit(): void {
+    if (!this.isFormValid()) {
+        this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Preencha todos os campos obrigatórios.' });
+        return;
+    }
+    
     // Pega o ID do pesquisador que está logado
     const pesquisadorId = this.authService.getPesquisadorId();
 
@@ -122,19 +148,19 @@ export class CadastroExperimentoComponent implements OnInit {
         this.messageService.add({ 
             severity: 'error', 
             summary: 'Erro de Autenticação', 
-            detail: 'Não foi possível identificar o pesquisador. Por favor, faça o login novamente.' 
+            detail: 'Não foi possível identificar o pesquisador. Faça o login novamente.' 
         });
         return;
     }
 
-    // Atribui o ID do pesquisador logado ao objeto que será enviado
+    // Atribui os dados ao objeto que será enviado
     this.experimentoModel.pesquisadorId = pesquisadorId;
-
+    this.experimentoModel.tipoEmocao = this.emocaoSelecionada?.nome;
     this.experimentoModel.descricao = `Emoção selecionada: ${this.emocaoSelecionada?.nome}. Descrição do ambiente: ${this.descricaoAmbiente}`;
 
     const formData = new FormData();
     formData.append('experimento', new Blob([JSON.stringify(this.experimentoModel)], { type: 'application/json' }));
-
+    
     if (this.selectedFile) {
       formData.append('midia', this.selectedFile, this.selectedFile.name);
     }
@@ -143,6 +169,11 @@ export class CadastroExperimentoComponent implements OnInit {
       .subscribe({
         next: (resposta) => {
           this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Experimento cadastrado!' });
+          
+          // Redireciona após 1.5s para o usuário ver a mensagem de sucesso
+          setTimeout(() => {
+            this.router.navigate(['/experimentos']);
+          }, 1500);
         },
         error: (erro) => {
           this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao cadastrar experimento.' });
