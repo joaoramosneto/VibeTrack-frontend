@@ -1,0 +1,41 @@
+/* Container principal que organiza os gráficos */
+.dashboard-container {
+  display: flex;
+  flex-wrap: wrap; /* Permite que os gráficos quebrem para a linha de baixo em telas menores */
+  gap: 24px;       /* Espaço entre os gráficos */
+  padding: 24px;
+}
+
+h1 {
+  width: 100%; /* Faz o título ocupar toda a largura */
+  margin-bottom: 16px;
+  font-size: 1.8em;
+  color: #333;
+}
+
+/* "Card" que envolve cada gráfico */
+.chart-wrapper {
+  flex: 1 1 450px; /* Cresce para preencher o espaço, mas tem uma base de 450px */
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  background-color: #ffffff;
+}
+
+.chart-wrapper h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  text-align: center;
+  color: #555;
+  font-weight: 500;
+}
+
+/* Container interno que define a altura do gráfico */
+.chart-inner {
+  position: relative;
+  height: 350px; /* Altura fixa para os gráficos. Ajuste conforme necessário. */
+  width: 100%;
+}

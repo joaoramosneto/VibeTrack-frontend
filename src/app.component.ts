@@ -21,4 +21,6 @@ export class AppComponent {
   title = 'vibetrack-frontend';
 
   constructor() {}
-}
+
+ 
+}  

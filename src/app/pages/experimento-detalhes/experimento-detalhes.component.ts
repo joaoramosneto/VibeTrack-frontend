@@ -1,14 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { ExperimentoService } from '../../layout/service/experimento.service';
-import { ParticipanteService } from '../../layout/service/participante.service';
+import { Experimento, ExperimentoService } from '../../layout/service/experimento.service';
+import { Participante, ParticipanteService } from '../../layout/service/participante.service';
 
-// Nossos serviços e interfaces
+// IMPORTS NECESSÁRIOS
+import { CommonModule } from '@angular/common';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { CardModule } from 'primeng/card';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 
 
 @Component({
@@ -16,65 +20,99 @@ import { ParticipanteService } from '../../layout/service/participante.service';
   standalone: true,
   imports: [
     CommonModule,
-    CardModule,     // <-- Isto corrige o erro do <p-card>
-    ButtonModule,   // <-- Isto corrige o erro do <p-button>
-    TableModule     // <-- Isto corrige o erro do <p-table>
+    ProgressSpinnerModule,
+    CardModule,
+    TableModule,
+    ButtonModule,
+    DialogModule,
+    ToastModule,
+    TooltipModule
   ],
   templateUrl: './experimento-detalhes.component.html',
-  // styleUrls: ['./experimento-detalhes.component.css'] // Removido para corrigir o erro de CSS
+  providers: [MessageService]
 })
 export class ExperimentoDetalhesComponent implements OnInit {
 
-  // As propriedades que o HTML estava procurando
-  experimento: any = null;
-  todosParticipantes: any[] = [];
-  experimentoId!: number;
+  experimento: Experimento | null = null;
+  todosParticipantes: Participante[] = [];
+
+  exibirDialogCodigo = false;
+  codigoSessao = '';
 
   constructor(
     private route: ActivatedRoute,
     private experimentoService: ExperimentoService,
     private participanteService: ParticipanteService,
     private messageService: MessageService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-    const idParam = this.route.snapshot.paramMap.get('id');
-    if (idParam) {
-      this.experimentoId = +idParam;
-      this.carregarDadosDoExperimento();
-      this.carregarTodosParticipantes();
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    if (id) {
+      // Apenas a primeira chamada é feita aqui
+      this.carregarDetalhesExperimento(id);
     }
   }
 
-  carregarDadosDoExperimento(): void {
-    this.experimentoService.getExperimentoById(this.experimentoId).subscribe({
-      next: (data) => { this.experimento = data; },
-      error: (err) => { this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar experimento.' }); }
+  carregarDetalhesExperimento(id: number): void {
+    this.experimentoService.getExperimentoById(id).subscribe(dados => {
+      this.experimento = dados;
+      // =================================================================
+      // ====> CORREÇÃO: A segunda chamada agora acontece AQUI <====
+      // =================================================================
+      // Só depois que 'this.experimento' tem um valor,
+      // nós buscamos a lista de todos os participantes para filtrar.
+      this.carregarTodosParticipantes();
     });
   }
 
   carregarTodosParticipantes(): void {
-    this.participanteService.getParticipantes().subscribe({
-      next: (data) => { this.todosParticipantes = data; },
-      error: (err) => { this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar participantes.' }); }
+    this.participanteService.getParticipantes().subscribe(dados => {
+        if (this.experimento) {
+            // Agora este filtro funcionará, pois 'this.experimento' já existe
+            const idsParticipantesNoExperimento = new Set(this.experimento.participantes.map(p => p.id));
+            this.todosParticipantes = dados.filter(p => !idsParticipantesNoExperimento.has(p.id));
+        } else {
+            this.todosParticipantes = dados;
+        }
     });
   }
 
-  // Os métodos que o HTML estava procurando
-  adicionarParticipante(idParticipante: number): void {
-    this.experimentoService.adicionarParticipante(this.experimentoId, idParticipante).subscribe({
-      next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Participante adicionado!' });
-        this.carregarDadosDoExperimento(); // Recarrega para atualizar a lista
+  iniciarColeta(participanteId: number): void {
+    if (!this.experimento) return;
+
+    const request = {
+      experimentoId: this.experimento.id,
+      participanteId: participanteId
+    };
+
+    this.experimentoService.iniciarSessaoColeta(request).subscribe({
+      next: (response) => {
+        this.codigoSessao = response.codigo;
+        this.exibirDialogCodigo = true;
       },
-      error: (err) => { this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao adicionar participante.' }); }
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível iniciar a sessão de coleta.' });
+      }
     });
   }
 
-  isParticipanteNoExperimento(idParticipante: number): boolean {
-    if (!this.experimento?.participantes) {
-      return false;
-    }
-    return this.experimento.participantes.some((p: any) => p.id === idParticipante);
+  adicionarParticipante(participanteId: number): void {
+    if (!this.experimento) return;
+    this.experimentoService.adicionarParticipante(this.experimento.id, participanteId).subscribe({
+        next: () => {
+            this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Participante adicionado!' });
+            // Recarrega os detalhes do experimento, o que vai automaticamente
+            // chamar 'carregarTodosParticipantes' de novo na ordem certa.
+            this.carregarDetalhesExperimento(this.experimento!.id);
+        },
+        error: () => {
+            this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível adicionar o participante.' });
+        }
+    });
+  }
+
+  isParticipanteNoExperimento(participanteId: number): boolean {
+    return this.experimento?.participantes.some(p => p.id === participanteId) ?? false;
   }
 }

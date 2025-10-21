@@ -11,6 +11,9 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DropdownModule } from 'primeng/dropdown';
+import { TextareaModule } from 'primeng/textarea';
+import { FileUploadModule } from 'primeng/fileupload';
 
 // 1. IMPORTAR O SERVICE E A INTERFACE CORRETA
 import { Experimento, ExperimentoService } from '../../layout/service/experimento.service';
@@ -20,22 +23,28 @@ import { Experimento, ExperimentoService } from '../../layout/service/experiment
   standalone: true,
   imports: [
     CommonModule, TableModule, FormsModule, ButtonModule, RippleModule,
-    ToastModule, ToolbarModule, DialogModule, InputTextModule, ConfirmDialogModule
+    ToastModule, ToolbarModule, DialogModule, InputTextModule, ConfirmDialogModule,
+    DropdownModule, TextareaModule, FileUploadModule
   ],
   templateUrl: './experimentos.component.html', // Assumindo que você tem um HTML separado
   providers: [MessageService, ConfirmationService]
 })
 export class ExperimentosComponent implements OnInit {
-  
+
   // O signal agora é do tipo da interface que validamos
   experimentos = signal<Experimento[]>([]);
-  
+
   // Objeto para edição no dialog
- // Objeto para edição no dialog
-experimento: Experimento = { id: 0, nome: '', descricao: '', dataInicio: '', dataFim: '', pesquisador: { id: 0, nome: '' } }; // <-- CORRETO: 'pesquisador' é um objeto
-  
+  experimento: Experimento = { id: 0, nome: '', descricao: '', dataInicio: '', dataFim: '', pesquisador: { id: 0, nome: '' }, statusExperimento: '',tipoEmocao:'', participantes:[] };
+
   selectedExperimentos!: Experimento[] | null;
   experimentoDialog: boolean = false;
+
+  statusOptions: any[] = [];
+  tiposDeEmocao: any[] = [];
+  emocaoSelecionada: any;
+  descricaoAmbiente: string = '';
+  selectedFile: File | null = null;
 
   @ViewChild('dt') dt!: Table;
 
@@ -49,6 +58,20 @@ experimento: Experimento = { id: 0, nome: '', descricao: '', dataInicio: '', dat
   ngOnInit() {
     // 3. CARREGAR OS DADOS REAIS AO INICIAR O COMPONENTE
     this.carregarExperimentos();
+
+    this.tiposDeEmocao = [
+        { nome: 'Alegria' },
+        { nome: 'Raiva' },
+        { nome: 'Tristeza' },
+        { nome: 'Medo' }
+    ];
+    this.statusOptions = [
+        { label: 'Planejado', value: 'PLANEJADO' },
+        { label: 'Em Andamento', value: 'EM_ANDAMENTO' },
+        { label: 'Concluído', value: 'CONCLUIDO' },
+        { label: 'Cancelado', value: 'CANCELADO' },
+        { label: 'Pausado', value: 'PAUSADO' }
+    ];
   }
 
   carregarExperimentos() {
@@ -67,7 +90,7 @@ experimento: Experimento = { id: 0, nome: '', descricao: '', dataInicio: '', dat
     // A rota deve ser a mesma do seu componente de cadastro
     this.router.navigate(['/cadastro-experimento']);
   }
-  
+
   verResultado(experimento: Experimento) {
     // Esta rota pode ser para uma página de detalhes do experimento
     this.router.navigate(['/experimentos', experimento.id]);
@@ -97,12 +120,19 @@ experimento: Experimento = { id: 0, nome: '', descricao: '', dataInicio: '', dat
 
   editExperimento(experimento: Experimento) {
     // Clona o objeto para o formulário de edição para não alterar a tabela diretamente
-    this.experimento = { ...experimento }; 
+    this.experimento = { ...experimento };
     this.experimentoDialog = true;
   }
 
   hideDialog() {
     this.experimentoDialog = false;
+  }
+
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+    }
   }
 
   saveExperimento() {
@@ -112,10 +142,14 @@ experimento: Experimento = { id: 0, nome: '', descricao: '', dataInicio: '', dat
         nome: this.experimento.nome,
         descricao: this.experimento.descricao,
         dataInicio: this.experimento.dataInicio,
-        dataFim: this.experimento.dataFim
+        dataFim: this.experimento.dataFim,
+        statusExperimento: this.experimento.statusExperimento,
+        pesquisadorId: this.experimento.pesquisador.id,
+        tipoEmocao: this.emocaoSelecionada ? this.emocaoSelecionada.nome : null
+         // Certifique-se que esta linha existe
         // adicione outros campos do DTO de request se necessário
     };
-      
+
     this.experimentoService.updateExperimento(this.experimento.id, dadosParaAtualizar).subscribe({
         next: (experimentoAtualizado) => {
             // Atualiza a lista local com os dados retornados pelo backend

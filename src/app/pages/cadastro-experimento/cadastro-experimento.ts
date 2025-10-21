@@ -75,6 +75,17 @@ import { AuthService } from '../service/auth.service'; // Importação do AuthSe
           </div>
 
           <div class="field flex flex-col mb-4">
+            <label for="status" class="font-semibold mb-2">Status do Experimento:</label>
+            <p-dropdown id="status"
+                        [options]="statusOptions"
+                        [(ngModel)]="experimentoModel.statusExperimento" 
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Selecione um status">
+            </p-dropdown>
+          </div>
+
+          <div class="field flex flex-col mb-4">
             <label for="descricao" class="font-semibold mb-2">Descrição do Ambiente:</label>
             <textarea pInputTextarea id="descricao" [(ngModel)]="descricaoAmbiente" rows="5"></textarea>
           </div>
@@ -94,6 +105,7 @@ export class CadastroExperimentoComponent implements OnInit {
   tiposDeEmocao: any[] = [];
   emocaoSelecionada: any;
   descricaoAmbiente: string = '';
+  statusOptions: any[] = [];
 
   experimentoModel: ExperimentoRequest = {
     nome: '',
@@ -101,7 +113,8 @@ export class CadastroExperimentoComponent implements OnInit {
     dataInicio: '',
     dataFim: '',
     pesquisadorId: 0, 
-    tipoEmocao: ''
+    tipoEmocao: '',
+    statusExperimento: 'PLANEJADO'
   };
 
   selectedFile: File | null = null;
@@ -120,8 +133,15 @@ export class CadastroExperimentoComponent implements OnInit {
         { nome: 'Tristeza', styleClass: 'text-blue-500' },
         { nome: 'Medo', styleClass: 'text-orange-500' }
     ];
+    this.statusOptions = [
+        { label: 'Planejado', value: 'PLANEJADO' },
+        { label: 'Em Andamento', value: 'EM_ANDAMENTO' },
+        { label: 'Concluído', value: 'CONCLUIDO' },
+        { label: 'Cancelado', value: 'CANCELADO' },
+        { label: 'Pausado', value: 'PAUSADO' }
+    ];
   }
-
+    
   onFileSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
@@ -129,35 +149,32 @@ export class CadastroExperimentoComponent implements OnInit {
     }
   }
   
-  // Função para validar se os campos obrigatórios estão preenchidos
   isFormValid(): boolean {
     return !!this.experimentoModel.nome && !!this.experimentoModel.dataInicio && !!this.emocaoSelecionada;
   }
 
-  // Valida o formulário, obtém o ID, atribui os dados e redireciona
   onSubmit(): void {
     if (!this.isFormValid()) {
         this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Preencha todos os campos obrigatórios.' });
         return;
     }
     
-    // Pega o ID do pesquisador que está logado
     const pesquisadorId = this.authService.getPesquisadorId();
-
     if (!pesquisadorId) {
         this.messageService.add({ 
             severity: 'error', 
             summary: 'Erro de Autenticação', 
-            detail: 'Não foi possível identificar o pesquisador. Faça o login novamente.' 
+            detail: 'Não foi possível identificar o pesquisador.' 
         });
         return;
     }
 
-    // Atribui os dados ao objeto que será enviado
     this.experimentoModel.pesquisadorId = pesquisadorId;
     this.experimentoModel.tipoEmocao = this.emocaoSelecionada?.nome;
     this.experimentoModel.descricao = `Emoção selecionada: ${this.emocaoSelecionada?.nome}. Descrição do ambiente: ${this.descricaoAmbiente}`;
 
+    console.log('Dados do experimento a serem enviados:', this.experimentoModel);
+    
     const formData = new FormData();
     formData.append('experimento', new Blob([JSON.stringify(this.experimentoModel)], { type: 'application/json' }));
     
@@ -167,10 +184,8 @@ export class CadastroExperimentoComponent implements OnInit {
 
     this.experimentoService.criarExperimento(formData)
       .subscribe({
-        next: (resposta) => {
+        next: () => {
           this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Experimento cadastrado!' });
-          
-          // Redireciona após 1.5s para o usuário ver a mensagem de sucesso
           setTimeout(() => {
             this.router.navigate(['/experimentos']);
           }, 1500);

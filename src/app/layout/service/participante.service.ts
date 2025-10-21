@@ -2,12 +2,23 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../enviroments/enviroment';
+import { AuthService } from '../../pages/service/auth.service'; // <-- 1. Importar o AuthService
 
-// Interface para os dados do formulário (bate com o ParticipanteRequestDTO)
+// Interface para os dados do formulário de CRIAÇÃO (já existia)
 export interface ParticipanteRequest {
   nomeCompleto: string;
   email: string;
-  dataNascimento: string; // Enviar como 'YYYY-MM-DD'
+  dataNascimento: string;
+}
+
+// =================================================================
+// ====> 2. ADICIONAR A INTERFACE PARA A RESPOSTA DA API <====
+// =================================================================
+export interface Participante {
+  id: number;
+  nomeCompleto: string;
+  email: string;
+  // Adicione outros campos que a sua API retorna (ex: telefone, dataNascimento, etc.)
 }
 
 @Injectable({
@@ -17,33 +28,31 @@ export class ParticipanteService {
 
   private apiUrl = `${environment.apiUrl}/participantes`;
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService // <-- 3. Injetar o AuthService
+  ) { }
 
-  criarParticipante(participanteData: ParticipanteRequest): Observable<any> {
-    // 1. Pega o token do localStorage
-    const token = localStorage.getItem('id_token');
-
-    // 2. Se não houver token, a requisição falhará (o que é bom)
-    if (!token) {
-      throw new Error("Token não encontrado. Faça o login novamente.");
+  // 4. USAR O MÉTODO PADRÃO PARA CRIAR CABEÇALHOS DE AUTENTICAÇÃO
+  private createAuthHeaders(): HttpHeaders {
+    const token = this.authService.getToken();
+    if (token) {
+      return new HttpHeaders({
+        'Authorization': `Bearer ${token}`
+      });
     }
-
-    // 3. Cria os cabeçalhos (Headers) com o token de autorização
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    });
-
-    // 4. Faz a requisição POST, passando os dados e os cabeçalhos
-    return this.http.post<any>(this.apiUrl, participanteData, { headers: headers });
+    return new HttpHeaders();
   }
 
-  // Futuramente, você adicionaria outros métodos aqui (get, update, delete)...
-  getParticipantes(): Observable<any[]> {
-  const token = localStorage.getItem('id_token');
-  const headers = new HttpHeaders({
-    'Authorization': `Bearer ${token}`
-  });
-  return this.http.get<any[]>(this.apiUrl, { headers: headers });
-}
+  criarParticipante(participanteData: ParticipanteRequest): Observable<Participante> {
+    const headers = this.createAuthHeaders();
+    // Ajustado para retornar um Observable<Participante>
+    return this.http.post<Participante>(this.apiUrl, participanteData, { headers });
+  }
+
+  // 5. ATUALIZAR O MÉTODO PARA USAR A NOVA INTERFACE E O AUTHSERVICE
+  getParticipantes(): Observable<Participante[]> {
+    const headers = this.createAuthHeaders();
+    return this.http.get<Participante[]>(this.apiUrl, { headers: headers });
+  }
 }

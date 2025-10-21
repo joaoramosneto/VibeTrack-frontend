@@ -28,16 +28,22 @@ export class AppMenu implements OnInit {
                 label: 'Experimentos',
                 items: [
                     // LINHA ADICIONADA AQUI:
-                    { label: 'Lista de Experimentos', icon: 'pi pi-fw pi-table', routerLink: ['/experimentos'] },
+                    { label: 'Lista de Experimentos',  routerLink: ['/experimentos'] },
                     
-                    { label: 'Cadastro de Experimento', icon: 'pi pi-fw pi-flask', routerLink: ['/cadastro-experimento'] },
-                    { label: 'Ver Detalhes', icon: 'pi pi-fw pi-search', routerLink: ['/experimentos', '1'] }
+                    { label: 'Cadastro de Experimento',  routerLink: ['/cadastro-experimento'] },
+                   
                 ]
             },
             {
                 label: 'Participantes',
                 items: [
                     { label: 'Cadastro de Participante', icon: 'pi pi-fw pi-user-plus', routerLink: ['/participantes/novo'] }
+                ]
+            },
+            {
+                label: 'Perfil', // NOVO: Seção para o perfil do usuário
+                items: [
+                    { label: 'Meu Perfil', icon: 'pi pi-fw pi-user', routerLink: ['/perfil'] }
                 ]
             },
         ];
