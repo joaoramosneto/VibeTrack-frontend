@@ -9,7 +9,7 @@
         </ng-template>
     </p-toolbar>
 
-    <p-table #dt [value]="experimentos()" [rows]="10" [paginator]="true" [rowHover]="true" dataKey="id">
+    <p-table #dt [value]="experimentos" [rows]="10" [paginator]="true" [rowHover]="true" dataKey="id">
         <ng-template pTemplate="header">
             <tr>
                 <th style="min-width: 15rem;">Pesquisador</th>
@@ -22,12 +22,18 @@
         </ng-template>
         <ng-template pTemplate="body" let-experimento>
             <tr>
+<<<<<<< Updated upstream
                 <td>{{experimento.pesquisador}}</td>
                 <td>{{experimento.participante}}</td>
                 <td>{{experimento.tipo}}</td>
                 <td>{{experimento.data}}</td>
+=======
+                <td>{{experimento.nome}}</td>
+                <td>{{experimento.pesquisador?.nome}}</td> <td>{{experimento.tipoEmocao || 'N/A'}}</td>
+                <td>{{experimento.dataInicio | date:'dd/MM/yyyy'}}</td>
+>>>>>>> Stashed changes
                 <td>
-                    <p-button label="Ver Resultado" styleClass="p-button-warning" (click)="verResultado(experimento)"></p-button>
+                    <button pButton pRipple label="Ver Detalhes" styleClass="p-button-warning" [routerLink]="['/experimentos', experimento.id]"></button>
                 </td>
                 <td>
                     <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-warning mr-2" (click)="editExperimento(experimento)"></button>

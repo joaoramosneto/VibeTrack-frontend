@@ -1,31 +1,31 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
+import { ToastModule } from 'primeng/toast';
 import { ExperimentoService } from '../../layout/service/experimento.service';
 import { ParticipanteService } from '../../layout/service/participante.service';
-
-// Nossos serviços e interfaces
-
 
 @Component({
   selector: 'app-experimento-detalhes',
   standalone: true,
   imports: [
     CommonModule,
-    CardModule,     // <-- Isto corrige o erro do <p-card>
-    ButtonModule,   // <-- Isto corrige o erro do <p-button>
-    TableModule     // <-- Isto corrige o erro do <p-table>
+    RouterLink,
+    CardModule,
+    ButtonModule,
+    TableModule,
+    ToastModule
   ],
+  // Ensure this path is correct and there are no typos in the filename
   templateUrl: './experimento-detalhes.component.html',
-  // styleUrls: ['./experimento-detalhes.component.css'] // Removido para corrigir o erro de CSS
+  providers: [MessageService]
 })
 export class ExperimentoDetalhesComponent implements OnInit {
 
-  // As propriedades que o HTML estava procurando
   experimento: any = null;
   todosParticipantes: any[] = [];
   experimentoId!: number;
@@ -60,7 +60,6 @@ export class ExperimentoDetalhesComponent implements OnInit {
     });
   }
 
-  // Os métodos que o HTML estava procurando
   adicionarParticipante(idParticipante: number): void {
     this.experimentoService.adicionarParticipante(this.experimentoId, idParticipante).subscribe({
       next: () => {

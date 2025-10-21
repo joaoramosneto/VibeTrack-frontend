@@ -1,9 +1,9 @@
-<div *ngIf="!experimento">
-    Carregando dados do experimento...
+<p-toast></p-toast> <div *ngIf="!experimento" class="flex justify-content-center align-items-center" style="height: 200px;">
+    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+    <span class="ml-2">Carregando dados do experimento...</span>
 </div>
 
 <div *ngIf="experimento" class="grid">
-
     <div class="col-12 md:col-6">
         <p-card>
             <ng-template pTemplate="title">
@@ -14,8 +14,8 @@
             </ng-template>
             
             <p><strong>Descrição:</strong> {{ experimento.descricao }}</p>
-            <p><strong>Status:</strong> {{ experimento.statusExperimento }}</p>
-            <p><strong>Período:</strong> {{ experimento.dataInicio }} a {{ experimento.dataFim }}</p>
+            <p><strong>Status:</strong> {{ experimento.statusExperimento || 'N/A' }}</p>
+            <p><strong>Período:</strong> {{ experimento.dataInicio | date:'dd/MM/yyyy' }} a {{ experimento.dataFim | date:'dd/MM/yyyy' }}</p>
 
             <hr class="my-4">
 
@@ -41,13 +41,16 @@
                 </ng-template>
             </p-table>
 
+            <ng-template pTemplate="footer">
+                <button pButton type="button" label="Voltar para a lista" icon="pi pi-arrow-left" class="p-button-outlined" routerLink="/experimentos"></button>
+            </ng-template>
         </p-card>
     </div>
 
-    <div class="col-12 md:col-6 mt-4">
+    <div class="col-12 md:col-6">
         <p-card header="Adicionar Participantes ao Experimento">
             
-            <p-table [value]="todosParticipantes" [tableStyle]="{'min-width': '30rem'}">
+            <p-table [value]="todosParticipantes" [tableStyle]="{'min-width': '30rem'}" [scrollable]="true" scrollHeight="400px">
                 <ng-template pTemplate="header">
                     <tr>
                         <th>Nome</th>

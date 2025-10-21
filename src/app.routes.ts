@@ -5,10 +5,11 @@ import { authGuard } from '../src/app/guards/auth.guard';
 
 // 1. Imports dos seus novos componentes
 import { ExperimentosComponent } from './app/pages/experimentos/experimentos.component'; // Listagem
-import { CadastroExperimentoComponent } from './app/pages/cadastro-experimento/cadastro-experimento'; // Cadastro
 import { ExperimentoDetalhesComponent } from './app/pages/experimento-detalhes/experimento-detalhes.component'; // Detalhes
-import { CadastroParticipanteComponent } from './app/pages/cadastro-participante/cadastro-participante'; // Cadastro Participante
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 
 export const appRoutes: Routes = [
     {
@@ -16,6 +17,8 @@ export const appRoutes: Routes = [
         component: AppLayout,
         canActivate: [authGuard],
         children: [
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
             // Redireciona a rota vazia para o dashboard
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 
@@ -33,6 +36,23 @@ export const appRoutes: Routes = [
     },
     // Rota de autenticação
     { path: 'auth', loadChildren: () => import('./app/pages/auth/auth.routes') },
+=======
+=======
+>>>>>>> Stashed changes
+            { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+            { path: 'participantes/novo', component: CadastroParticipanteComponent },
+            { path: 'dashboard', component: Dashboard },
+            { path: 'cadastro-experimento', component: CadastroExperimentoComponent },
+            { path: 'experimentos/:id', component: ExperimentoDetalhesComponent },
+            { path: 'experimentos', component: ExperimentosComponent } // Added route for listing experiments
+        ]
+    },
+    // A ÁREA PÚBLICA DE AUTENTICAÇÃO
+    {
+        path: 'auth',
+        loadChildren: () => import('./app/pages/auth/auth.routes')
+    },
+>>>>>>> Stashed changes
 
     // Rota "catch-all" para qualquer outra URL não encontrada
     { path: '**', redirectTo: '/dashboard' }

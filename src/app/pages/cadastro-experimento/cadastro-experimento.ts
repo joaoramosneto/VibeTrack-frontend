@@ -1,5 +1,15 @@
 import { Component, OnInit } from '@angular/core';
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import { CommonModule, NgClass } from '@angular/common';
+=======
+import { Router } from '@angular/router'; // Importação do Router
+import { CommonModule } from '@angular/common';
+>>>>>>> Stashed changes
+=======
+import { Router } from '@angular/router'; // Importação do Router
+import { CommonModule } from '@angular/common';
+>>>>>>> Stashed changes
 import { FormsModule } from '@angular/forms';
 import { FileUploadModule } from 'primeng/fileupload';
 import { InputTextModule } from 'primeng/inputtext';
@@ -25,7 +35,6 @@ import { ExperimentoRequest, ExperimentoService } from '../../layout/service/exp
     ToastModule,
     DropdownModule,
     TextareaModule,
-    NgClass,
     DividerModule
   ],
   template: `
