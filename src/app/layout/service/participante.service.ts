@@ -18,6 +18,7 @@ export interface Participante {
   id: number;
   nomeCompleto: string;
   email: string;
+  dataNascimento: string;
   // Adicione outros campos que a sua API retorna (ex: telefone, dataNascimento, etc.)
 }
 

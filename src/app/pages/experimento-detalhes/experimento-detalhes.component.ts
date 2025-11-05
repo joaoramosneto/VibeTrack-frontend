@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink, RouterModule } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Experimento, ExperimentoService } from '../../layout/service/experimento.service';
 import { Participante, ParticipanteService } from '../../layout/service/participante.service';
@@ -26,7 +26,8 @@ import { TooltipModule } from 'primeng/tooltip';
     ButtonModule,
     DialogModule,
     ToastModule,
-    TooltipModule
+    TooltipModule,
+    RouterLink
   ],
   templateUrl: './experimento-detalhes.component.html',
   providers: [MessageService]
@@ -51,6 +52,7 @@ export class ExperimentoDetalhesComponent implements OnInit {
     if (id) {
       // Apenas a primeira chamada é feita aqui
       this.carregarDetalhesExperimento(id);
+      
     }
   }
 

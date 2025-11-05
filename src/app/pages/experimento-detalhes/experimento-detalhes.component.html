@@ -4,11 +4,14 @@
 
 <div *ngIf="experimento" class="grid p-fluid">
     <p-toast></p-toast>
-    
+      <button pButton pRipple label="Ver Dashboard" icon="pi pi-chart-line" class="p-button-info mr-2 mb-3"
+                *ngIf="experimento?.id"
+                [routerLink]="['/experimentos', experimento.id, 'dashboard']">
+            </button>
     <div class="col-12 mb-3">
     <p-card header="Detalhes do Experimento">
         <div class="formgrid grid">
-            
+          
             <div class="field col-12 md:col-6 mb-3">
                 <label class="font-bold block mb-1">Nome do Experimento</label>
                 <p class="text-lg m-0">{{ experimento.nome }}</p>

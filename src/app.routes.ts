@@ -10,6 +10,7 @@ import { ExperimentoDetalhesComponent } from './app/pages/experimento-detalhes/e
 import { CadastroParticipanteComponent } from './app/pages/cadastro-participante/cadastro-participante'; // Cadastro Participante
 import { ExperimentoDashboardComponent } from './app/pages/experimento-dashboard/experimento-dashboard.component';
 import { PerfilUsuarioComponent } from './app/pages/perfil-usuario/perfil-usuario.component';
+import { ParticipanteComponent } from './app/pages/participantes/participantes.component';
 
 
 
@@ -26,7 +27,8 @@ export const appRoutes: Routes = [
             { path: 'cadastro-experimento', component: CadastroExperimentoComponent },
             { path: 'experimentos/:id', component: ExperimentoDetalhesComponent },
             { path: 'experimentos/:id/dashboard', component: ExperimentoDashboardComponent },
-            { path: 'perfil', component: PerfilUsuarioComponent }
+            { path: 'perfil', component: PerfilUsuarioComponent },
+            { path: 'participantes', component: ParticipanteComponent },
         
         ]
     },

@@ -37,7 +37,8 @@ export class AppMenu implements OnInit {
             {
                 label: 'Participantes',
                 items: [
-                    { label: 'Cadastro de Participante', icon: 'pi pi-fw pi-user-plus', routerLink: ['/participantes/novo'] }
+                    { label: 'Cadastro de Participante', icon: 'pi pi-fw pi-user-plus', routerLink: ['/participantes/novo'] },
+                    { label: 'Participantes', icon: 'pi pi-fw pi-users', routerLink: ['/participantes'] } // <-- Adicione aqui
                 ]
             },
             {
