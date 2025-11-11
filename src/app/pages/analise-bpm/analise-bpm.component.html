@@ -1,0 +1,45 @@
+<p-toast />
+
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5>Análise de Emoção por BPM (Teste)</h5>
+            <p>Insira uma média de Batimentos Por Minuto (BPM) para simular uma análise de emoção.</p>
+
+            <div class="p-fluid grid formgrid">
+                <div class="field col-12 md:col-6">
+                    <label for="bpmInput">BPM (Média de 1 min)</label>
+                    <p-inputNumber id="bpmInput" 
+                                   [(ngModel)]="bpmInput" 
+                                   mode="decimal" 
+                                   [showButtons]="true" 
+                                   [min]="0" 
+                                   [max]="250">
+                    </p-inputNumber>
+                </div>
+                <div class="field col-12 md:col-6" style="align-self: flex-end;">
+                    <p-button label="Analisar Emoção" 
+                              icon="pi pi-check" 
+                              [loading]="isLoading" 
+                              (click)="onAnalisarClick()">
+                    </p-button>
+                </div>
+            </div>
+
+            <div *ngIf="resultado" class="mt-4">
+                <p-card header="Resultado da Análise">
+                    <div class="flex align-items-center">
+                        <i class="pi pi-heart-fill text-primary text-4xl mr-3"></i>
+                        <div>
+                            <div class="text-xl font-medium">Emoção Detectada:</div>
+                            <div class="text-2xl font-bold text-primary">
+                                {{ resultado.emocaoDetectada }}
+                            </div>
+                        </div>
+                    </div>
+                </p-card>
+            </div>
+
+        </div>
+    </div>
+</div>
