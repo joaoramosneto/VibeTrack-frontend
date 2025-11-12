@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://sua-api-de-producao.com/api' // Deixe um valor de exemplo por enquanto
+  apiUrl: 'https://vibetrack-backend-435280224805.southamerica-east1.run.app' // Deixe um valor de exemplo por enquanto
 };
