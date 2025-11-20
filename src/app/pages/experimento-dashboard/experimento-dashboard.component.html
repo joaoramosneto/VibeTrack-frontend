@@ -12,22 +12,24 @@
     </div>
   </div>
   
-  <div class="table-wrapper">
-    <h2>Dados Agregados do Gráfico</h2>
+  <div class="chart-wrapper">
+    <h3>Valores de Frequência Cardíaca (Legenda)</h3>
     
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Tipo de Frequência</th>
-          <th>Valor (BPM)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let row of tableData">
-          <td>{{ row.tipoDado }}</td>
-          <td>{{ row.valor }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-inner">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Tipo de Frequência</th>
+            <th>Valor (BPM)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of tableData">
+            <td>{{ row.tipoDado }}</td>
+            <td>{{ row.valor }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
