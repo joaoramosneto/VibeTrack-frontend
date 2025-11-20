@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "VibeTrack-frontend/dist/sakai-ng",
+    "public": "dist/sakai-ng/browser",
     "ignore": [
       "firebase.json",
       "**/.*",

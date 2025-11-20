@@ -1,18 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { Chart, ChartConfiguration, ChartData, ChartType, registerables } from 'chart.js';
-
-// Importe a diretiva diretamente
+import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
+import { ActivatedRoute } from '@angular/router'; // Importado para obter o ID da URL
 import { BaseChartDirective } from 'ng2-charts';
 
-// Importe o seu serviço que faz chamadas para a API
-// O caminho pode variar dependendo da estrutura do seu projeto
 import { ExperimentoService } from '../../layout/service/experimento.service';
 
 @Component({
   selector: 'app-experimento-dashboard',
   standalone: true,
   imports: [
-    BaseChartDirective // Apenas a diretiva é necessária aqui
+    BaseChartDirective
   ],
   templateUrl: './experimento-dashboard.component.html',
   styleUrls: ['./experimento-dashboard.component.css']
@@ -26,7 +23,7 @@ export class ExperimentoDashboardComponent implements OnInit {
   };
   public lineChartOptions: ChartConfiguration['options'] = {
     responsive: true,
-    maintainAspectRatio: false, // Importante para o CSS controlar a altura
+    maintainAspectRatio: false,
     scales: {
       y: {
         beginAtZero: true
@@ -35,36 +32,47 @@ export class ExperimentoDashboardComponent implements OnInit {
   };
   public lineChartType: ChartType = 'line';
 
-  // --- Gráfico de Pizza (Emoções) ---
-  public pieChartData: ChartData<'pie', number[], string | string[]> = {
-    labels: [],
-    datasets: [{
-      data: []
-    }]
-  };
-  public pieChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false, // Importante para o CSS controlar a altura
-  };
-  public pieChartType: ChartType = 'pie'; // Pode ser 'pie' ou 'doughnut'
+  // As propriedades do gráfico de pizza foram removidas.
 
-  constructor(private experimentoService: ExperimentoService) {
-     Chart.register(...registerables);
-   }
+  constructor(
+    private experimentoService: ExperimentoService, 
+    private route: ActivatedRoute // Injeção de dependência para a rota
+  ) {
+      Chart.register(...registerables);
+    }
   
   ngOnInit(): void {
-    // Busca os dados mockados da API. Usamos um ID qualquer (ex: 1).
-    const experimentoId = 1;
-    this.experimentoService.getDashboardData(experimentoId).subscribe((data: { frequenciaCardiaca: { labels: any; datasets: any; }; distribuicaoEmocoes: { labels: (string | string[])[] | undefined; data: number[]; }; }) => {
-      // Preenche os dados do gráfico de linha
-      this.lineChartData = {
-        labels: data.frequenciaCardiaca.labels,
-        datasets: data.frequenciaCardiaca.datasets
-      };
-
-      // Preenche os dados do gráfico de pizza
-      this.pieChartData.labels = data.distribuicaoEmocoes.labels;
-      this.pieChartData.datasets[0].data = data.distribuicaoEmocoes.data;
+    // 1. OBTÉM O ID DA ROTA DINAMICAMENTE
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        const experimentoId = +id; // Converte para número
+        this.carregarDadosDashboard(experimentoId);
+      } else {
+        console.error("ID do experimento não encontrado na rota. Verifique a navegação.");
+      }
     });
+  }
+
+  // MÉTODO PARA CARREGAR OS DADOS REAIS
+  carregarDadosDashboard(experimentoId: number): void {
+    // A tipagem da resposta agora ignora os dados do gráfico de pizza, 
+    // mas o backend continua enviando o objeto completo (DashboardDTO).
+    this.experimentoService.getDashboardData(experimentoId).subscribe(
+      (data: { frequenciaCardiaca: { labels: any; datasets: any; }; distribuicaoEmocoes: any; }) => {
+        
+        // Preenche os dados do gráfico de linha (Frequência Cardíaca)
+        this.lineChartData = {
+          labels: data.frequenciaCardiaca.labels,
+          datasets: data.frequenciaCardiaca.datasets
+        };
+
+        // NOTA: Os dados 'data.distribuicaoEmocoes' são recebidos do backend,
+        // mas são ignorados e não atribuídos a nenhuma propriedade, conforme solicitado.
+      },
+      error => {
+          console.error('Erro ao carregar o dashboard:', error);
+      }
+    );
   }
 }
