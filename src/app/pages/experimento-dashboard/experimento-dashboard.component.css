@@ -1,6 +1,7 @@
 /* Container principal que organiza os gráficos */
 .dashboard-container {
   display: flex;
+  width: 100%;
   flex-wrap: wrap; /* Permite que os gráficos quebrem para a linha de baixo em telas menores */
   gap: 24px;       /* Espaço entre os gráficos */
   padding: 24px;
@@ -28,6 +29,7 @@ h1 {
 
 .chart-wrapper h3 {
   margin-top: 0;
+  width: 100%;
   margin-bottom: 16px;
   text-align: center;
   color: #555;
