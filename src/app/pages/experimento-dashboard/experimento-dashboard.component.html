@@ -11,4 +11,29 @@
       </canvas>
     </div>
   </div>
-</div>
+  
+  <div class="table-wrapper">
+    <h2>Dados Descritivos (Última Coleta)</h2>
+    
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Experimento</th>
+          <th>Participante</th>
+          <th>Tipo de Dado</th>
+          <th>Valor (BPM)</th>
+          <th>Timestamp (Última Leitura)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of tableData">
+          <td>{{ row.nomeExperimento }}</td>
+          <td>{{ row.nomeParticipante }}</td>
+          <td>{{ row.tipoDado }}</td>
+          <td>{{ row.valor }}</td>
+          <td>{{ row.timestamp }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
