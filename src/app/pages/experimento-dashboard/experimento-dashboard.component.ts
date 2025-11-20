@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
-import { ActivatedRoute } from '@angular/router'; // Importado para obter o ID da URL
+import { ActivatedRoute } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
 
 import { ExperimentoService } from '../../layout/service/experimento.service';
@@ -16,7 +16,7 @@ import { ExperimentoService } from '../../layout/service/experimento.service';
 })
 export class ExperimentoDashboardComponent implements OnInit {
 
-  // --- Gráfico de Linha (Frequência Cardíaca) ---
+  // --- Gráfico de Linha/Barra (Frequência Cardíaca) ---
   public lineChartData: ChartConfiguration['data'] = {
     datasets: [],
     labels: []
@@ -27,16 +27,24 @@ export class ExperimentoDashboardComponent implements OnInit {
     scales: {
       y: {
         beginAtZero: true
+      },
+      // Adicionando um título para o eixo X para clareza
+      x: { 
+        title: {
+          display: true,
+          text: 'Tipo de Frequência Cardíaca'
+        }
       }
     }
   };
-  public lineChartType: ChartType = 'line';
+  // CORREÇÃO: Usando 'bar' para melhor representação visual de categorias.
+  public lineChartType: ChartType = 'bar'; 
 
   // As propriedades do gráfico de pizza foram removidas.
 
   constructor(
     private experimentoService: ExperimentoService, 
-    private route: ActivatedRoute // Injeção de dependência para a rota
+    private route: ActivatedRoute 
   ) {
       Chart.register(...registerables);
     }
@@ -46,29 +54,27 @@ export class ExperimentoDashboardComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
-        const experimentoId = +id; // Converte para número
+        const experimentoId = +id;
         this.carregarDadosDashboard(experimentoId);
       } else {
-        console.error("ID do experimento não encontrado na rota. Verifique a navegação.");
+        console.error("ID do experimento não encontrado na rota.");
       }
     });
   }
 
   // MÉTODO PARA CARREGAR OS DADOS REAIS
   carregarDadosDashboard(experimentoId: number): void {
-    // A tipagem da resposta agora ignora os dados do gráfico de pizza, 
-    // mas o backend continua enviando o objeto completo (DashboardDTO).
     this.experimentoService.getDashboardData(experimentoId).subscribe(
       (data: { frequenciaCardiaca: { labels: any; datasets: any; }; distribuicaoEmocoes: any; }) => {
         
-        // Preenche os dados do gráfico de linha (Frequência Cardíaca)
+        // Preenche os dados do gráfico de linha (agora gráfico de barra)
+        // Os labels virão do backend: ["FC Mínima", "FC Média", "FC Máxima"]
         this.lineChartData = {
           labels: data.frequenciaCardiaca.labels,
           datasets: data.frequenciaCardiaca.datasets
         };
 
-        // NOTA: Os dados 'data.distribuicaoEmocoes' são recebidos do backend,
-        // mas são ignorados e não atribuídos a nenhuma propriedade, conforme solicitado.
+        // Os dados 'data.distribuicaoEmocoes' são recebidos e ignorados.
       },
       error => {
           console.error('Erro ao carregar o dashboard:', error);
