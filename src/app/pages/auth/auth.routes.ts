@@ -1,15 +1,22 @@
-// Caminho: src/app/pages/auth/auth.routes.ts
+// Em: src/app/pages/auth/auth.routes.ts
 
 import { Routes } from '@angular/router';
 
-// 1. Importa os componentes com os nomes corretos do seu projeto
-import { Login } from './login'; // O seu componente de login
-import { RegisterComponent } from './register.component'; // O seu componente de registro
-import { VerificacaoComponent } from '../verificacao/verificacao.component'; // O novo componente que criamos
+// Imports dos seus componentes
+import { Login } from './login'; 
+import { RegisterComponent } from './register.component';
+import { VerificacaoComponent } from '../verificacao/verificacao.component';
+import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component'; // <-- O import que faltava
 
 export default [
-    // 2. Aponta para os componentes corretos
-    { path: 'login', component: Login },
-    { path: 'register', component: RegisterComponent },
-    { path: 'verificar', component: VerificacaoComponent }
+    { path: 'login', component: Login },
+    { path: 'register', component: RegisterComponent },
+    { path: 'verificar', component: VerificacaoComponent },
+    { path: 'forgot-password', component: ForgotPasswordComponent },
+    
+    // vvvv A LINHA QUE FALTAVA vvvv
+    { path: 'reset-password', component: ResetPasswordComponent }
+    // ^^^^ A LINHA QUE FALTAVA ^^^^
+
 ] satisfies Routes;

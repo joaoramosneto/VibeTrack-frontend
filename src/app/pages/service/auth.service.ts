@@ -54,6 +54,15 @@ export class AuthService {
     return this.http.post(url, null, { params: { codigo: codigo }, responseType: 'text' });
   }
 
+  requestPasswordReset(email: string): Observable<any> {
+    const requestBody = { email: email };
+
+    // Note que é só '/forgot-password' porque 'this.apiUrl' já tem o '/auth'
+    const url = `${this.apiUrl}/forgot-password`; 
+
+    return this.http.post(url, requestBody);
+  }
+
   private setSession(response: LoginResponse): void {
     localStorage.setItem('id_token', response.token);
     localStorage.setItem('pesquisador_id', response.pesquisadorId.toString());
