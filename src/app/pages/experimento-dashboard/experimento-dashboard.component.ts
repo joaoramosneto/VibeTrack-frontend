@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
 import { ActivatedRoute } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
-import { CommonModule } from '@angular/common'; // NECESSÁRIO para usar *ngFor na tabela
+import { CommonModule } from '@angular/common'; 
 
 import { ExperimentoService } from '../../layout/service/experimento.service';
 
@@ -20,14 +20,14 @@ interface TableDataRow {
   standalone: true,
   imports: [
     BaseChartDirective,
-    CommonModule // <-- Adicionado para suportar *ngFor no template
+    CommonModule
   ],
   templateUrl: './experimento-dashboard.component.html',
   styleUrls: ['./experimento-dashboard.component.css']
 })
 export class ExperimentoDashboardComponent implements OnInit {
 
-  // --- Gráfico de Linha/Barra (Frequência Cardíaca) ---
+  // --- Gráfico de Linha (Frequência Cardíaca) ---
   public lineChartData: ChartConfiguration['data'] = {
     datasets: [],
     labels: []
@@ -35,6 +35,11 @@ export class ExperimentoDashboardComponent implements OnInit {
   public lineChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
+    plugins: { // <-- NOVO BLOCO: REMOVENDO A LEGENDA
+        legend: {
+            display: false // <-- DESABILITA A LEGENDA
+        }
+    },
     scales: {
       y: {
         beginAtZero: true
@@ -47,7 +52,8 @@ export class ExperimentoDashboardComponent implements OnInit {
       }
     }
   };
-  public lineChartType: ChartType = 'bar'; 
+  // ALTERAÇÃO: Gráfico de 'bar' para 'line'
+  public lineChartType: ChartType = 'line'; 
 
   // 2. NOVAS PROPRIEDADES PARA A TABELA
   public tableData: TableDataRow[] = [];
@@ -75,11 +81,9 @@ export class ExperimentoDashboardComponent implements OnInit {
 
   // MÉTODO PARA CARREGAR OS DADOS REAIS
   carregarDadosDashboard(experimentoId: number): void {
-    // Busca dados do dashboard
     this.experimentoService.getDashboardData(experimentoId).subscribe(
       (data: { frequenciaCardiaca: { labels: string[]; datasets: { label: string, data: number[] }[]; }; distribuicaoEmocoes: any; }) => {
         
-        // 3. ATRIBUIÇÃO DO NOME DO EXPERIMENTO (Placeholder, pois o endpoint não retorna o nome)
         this.experimentoNome = `Experimento de Coleta #${experimentoId}`; 
         
         // Preenche os dados do gráfico
@@ -88,7 +92,7 @@ export class ExperimentoDashboardComponent implements OnInit {
           datasets: data.frequenciaCardiaca.datasets
         };
 
-        // 4. TRANSFORMA DADOS DO GRÁFICO EM DADOS DE TABELA
+        // TRANSFORMA DADOS DO GRÁFICO EM DADOS DE TABELA
         this.tableData = this.transformarDadosParaTabela(data.frequenciaCardiaca);
       },
       error => {
@@ -99,20 +103,19 @@ export class ExperimentoDashboardComponent implements OnInit {
     );
   }
 
-  // 5. NOVO MÉTODO: TRANSFORMA DADOS AGREGADOS DO GRÁFICO EM LINHAS DE TABELA
+  // MÉTODO: TRANSFORMA DADOS AGREGADOS DO GRÁFICO EM LINHAS DE TABELA
   transformarDadosParaTabela(chartData: { labels: string[]; datasets: { label: string, data: number[] }[]; }): TableDataRow[] {
       const table: TableDataRow[] = [];
-      const dataset = chartData.datasets[0]; // Pega o primeiro (e único) dataset com os valores
+      const dataset = chartData.datasets[0]; 
       const dataHoraAtual = new Date().toLocaleTimeString('pt-BR'); 
 
-      // Cria uma linha da tabela para cada rótulo de frequência (Min, Med, Max)
       chartData.labels.forEach((label, index) => {
           table.push({
               valor: dataset.data[index],
               tipoDado: label,
               timestamp: dataHoraAtual,
-              nomeExperimento: this.experimentoNome, // Usa a propriedade definida na classe
-              nomeParticipante: this.participanteNome // Usa a propriedade definida na classe
+              nomeExperimento: this.experimentoNome, 
+              nomeParticipante: this.participanteNome 
           });
       });
 
