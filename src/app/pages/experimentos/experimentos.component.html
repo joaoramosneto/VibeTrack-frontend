@@ -1,132 +1,179 @@
-<div class="card">
-    <p-toast></p-toast>
-    <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
-
-    <h2>Lista de Experimentos</h2>
-
-    <p-toolbar styleClass="mb-4">
-        <ng-template pTemplate="start">
-            <button pButton pRipple label="Novo" icon="pi pi-plus" class="p-button-warning mr-2" (click)="novoExperimento()"></button>
-        </ng-template>
-    </p-toolbar>
-
-    <p-table #dt [value]="experimentos()" [rows]="10" [paginator]="true" [rowHover]="true" dataKey="id">
-        <ng-template pTemplate="header">
-            <tr>
-                <th style="min-width: 15rem;">Nome do Experimento</th>
-                <th style="min-width: 15rem;">Pesquisador</th>
-                <th style="min-width: 10rem;">Tipo de Emoção</th>
-                <th style="min-width: 10rem;">Data de Início</th>
-                <th style="min-width: 10rem;">Resultado</th>
-                <th>Ações</th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-experimento>
-            <tr>
-                <td>{{experimento.nome}}</td>
-                <td>{{experimento.pesquisador.nome}}</td>
-                <td>{{experimento.tipoEmocao || 'N/A'}}</td>
-                <td>{{experimento.dataInicio | date:'dd/MM/yyyy'}}</td>
-                <td>
-                    <p-button label="Ver Resultado" styleClass="p-button-warning" (click)="verResultado(experimento)"></p-button>
-                </td>
-                <td>
-                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-warning mr-2" (click)="editExperimento(experimento)"></button>
-                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteExperimento(experimento)"></button>
-                </td>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="emptymessage">
-            <tr>
-                <td colspan="6" style="text-align: center;">Nenhum experimento encontrado.</td>
-            </tr>
-        </ng-template>
-    </p-table>
-</div>
-
-<p-dialog [(visible)]="experimentoDialog" [style]="{width: '600px'}" header="Editar Experimento" [modal]="true" class="p-fluid">
-    <ng-template pTemplate="content">
-      <div class="p-fluid grid mt-3">
-        <div class="col-12">
-                     <div class="field flex flex-col mb-4">
-            <label class="font-semibold mb-2">Pesquisador:</label>
-             <div class="py-2">
-              {{experimento.pesquisador.nome}}
-             </div>
-          </div>
-          <div class="field flex flex-col mb-4">
-            <label for="nome" class="font-semibold mb-2">Nome do Experimento:</label>
-            <input pInputText id="nome" type="text" [(ngModel)]="experimento.nome" required />
-          </div>
-
-          <div class="field flex flex-col mb-4">
-            <label for="dataInicio" class="font-semibold mb-2">Data de Início:</label>
-            <input pInputText id="dataInicio" type="date" [(ngModel)]="experimento.dataInicio" required />
-          </div>
-
-
-          <div class="field flex flex-col mb-4">
-            <label for="dataFim" class="font-semibold mb-2">Data de Fim:</label>
-            <input pInputText id="dataFim" type="date" [(ngModel)]="experimento.dataFim" required />
-          </div>
-
-          <div class="field flex flex-col mb-4">
-            <label for="arquivoMidia" class="font-semibold mb-2">Anexar Mídia (Opcional)</label>
-            <input type="file" id="arquivoMidia" (change)="onFileSelected($event)" class="p-inputtext">
-            <div *ngIf="selectedFile" class="mt-2">
-              <span class="font-semibold">Arquivo selecionado:</span> {{ selectedFile.name }}
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            
+            <div class="flex align-items-center justify-content-between mb-4">
+                <div>
+                    <h3 class="m-0 text-900 font-medium">Gerenciamento de Experimentos</h3>
+                    <p class="text-500 m-0">Visualize e edite seus experimentos.</p>
+                </div>
+                <button pButton pRipple label="Novo Experimento" icon="pi pi-plus" class="p-button-raised p-button-primary" (click)="novoExperimento()"></button>
             </div>
-          </div>
 
-          <div class="field flex flex-col mb-4">
-              <label for="emocao" class="font-semibold mb-2">Tipo de Emoção a ser Induzida:</label>
-              <p-dropdown id="emocao"
-                          [options]="tiposDeEmocao"
-                          [(ngModel)]="emocaoSelecionada"
-                          optionLabel="nome"
-                          placeholder="Selecione uma emoção">
-              </p-dropdown>
-          </div>
-          <div class="field flex flex-col mb-4">
-              <label for="status-edit" class="font-semibold mb-2">Status do Experimento:</label>
-              
-              <p-dropdown 
-                  id="status-edit"
-                  [options]="statusOptions"                 
-                  [(ngModel)]="experimento.statusExperimento" 
-                  optionLabel="label"                         
-                  optionValue="value"                       
-                  placeholder="Selecione um status">
-              </p-dropdown>
-          </div>
-          
-          <ng-template pTemplate="content">
-            <div class="p-fluid grid mt-3">
-                <div class="col-12">
-                    <div class="field flex flex-col mb-4">
-                        <label for="status-edit" class="font-semibold mb-2">Status do Experimento:</label>
-                        <p-dropdown id="status-edit"
-                                    [options]="statusOptions"
-                                    [(ngModel)]="experimento.statusExperimento"
-                                    optionLabel="label"
-                                    optionValue="value"
-                                    placeholder="Selecione um status">
-                        </p-dropdown>
+            <p-table #dt [value]="experimentos()" [rows]="10" [paginator]="true" responsiveLayout="scroll" [rowHover]="true" dataKey="id"
+                     styleClass="p-datatable-gridlines">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="nome" style="width: 25%">Nome <p-sortIcon field="nome"></p-sortIcon></th>
+                        <th pSortableColumn="pesquisador.nome" style="width: 20%">Pesquisador <p-sortIcon field="pesquisador.nome"></p-sortIcon></th>
+                        <th style="width: 15%">Emoção</th>
+                        <th pSortableColumn="dataInicio" style="width: 15%">Início <p-sortIcon field="dataInicio"></p-sortIcon></th>
+                        <th style="width: 10%">Status</th>
+                        <th style="width: 15%" class="text-center">Ações</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-experimento>
+                    <tr>
+                        <td>
+                            <span class="font-bold text-900">{{experimento.nome}}</span>
+                        </td>
+                        <td>
+                            <div class="flex align-items-center gap-2">
+                                <i class="pi pi-user text-500"></i>
+                                <span>{{experimento.pesquisador?.nome}}</span>
+                            </div>
+                        </td>
+                        
+                        <td>
+                            <span class="px-3 py-1 border-round-2xl text-sm font-bold"
+                                [ngClass]="{
+                                    'bg-yellow-100 text-yellow-600': experimento.resultadoEmocional === 'Alegria',
+                                    'bg-red-100 text-red-600': experimento.resultadoEmocional === 'Raiva',
+                                    'bg-blue-100 text-blue-600': experimento.resultadoEmocional === 'Tristeza',
+                                    'bg-purple-100 text-purple-600': experimento.resultadoEmocional === 'Medo',
+                                    'bg-gray-100 text-gray-600': !experimento.resultadoEmocional
+                                }">
+                                {{experimento.resultadoEmocional || 'N/A'}}
+                            </span>
+                        </td>
+                        
+                        <td>{{experimento.dataInicio | date:'dd/MM/yyyy'}}</td>
+                        
+                        <td>
+                            <span class="text-sm text-700">{{ experimento.statusExperimento }}</span>
+                        </td>
+
+                        <td class="text-center">
+                            <div class="flex justify-content-center gap-2">
+                                <button pButton pRipple icon="pi pi-search" class="p-button-rounded p-button-text p-button-info" (click)="verResultado(experimento)" pTooltip="Ver Detalhes" tooltipPosition="top"></button>
+                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-warning" (click)="editExperimento(experimento)" pTooltip="Editar" tooltipPosition="top"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="deleteExperimento(experimento)" pTooltip="Excluir" tooltipPosition="top"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="text-center p-5">
+                            <i class="pi pi-folder-open text-4xl text-500 mb-3"></i>
+                            <p class="text-500 m-0">Nenhum experimento encontrado.</p>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+            <p-dialog [(visible)]="experimentoDialog" [style]="{width: '650px'}" [modal]="true" styleClass="p-fluid" [draggable]="false" [resizable]="false">
+                
+                <ng-template pTemplate="header">
+                    <div class="pt-2">
+                        <span class="font-bold text-2xl text-900 block">Editar Experimento</span>
+                        <div class="text-500 text-base mt-2">Atualize os detalhes do experimento abaixo</div>
                     </div>
+                </ng-template>
+
+                <ng-template pTemplate="content">
+                    <div class="surface-card p-1 pt-4">
+                        
+                        <div class="field mb-5">
+                            <label for="nome" class="font-medium text-900 text-lg mb-3 block">Nome do Experimento</label>
+                            <div class="p-input-icon-left w-full">
+                                <i class="pi pi-tag"></i>
+                                <input type="text" pInputText id="nome" [(ngModel)]="experimento.nome" required autofocus placeholder="Ex: Análise de Resposta ao Estresse" class="w-full p-3" />
+                            </div>
+                            <small class="p-error block mt-2" *ngIf="!experimento.nome">O nome é obrigatório.</small>
+                        </div>
+                        
+                        <div class="formgrid grid">
+                            <div class="field col-12 md:col-6 mb-5">
+                                <label for="emocao" class="font-medium text-900 text-lg mb-3 block">Emoção Alvo</label>
+                                <p-dropdown id="emocao" 
+                                            [options]="tiposDeEmocao" 
+                                            [(ngModel)]="emocaoSelecionada" 
+                                            optionLabel="nome" 
+                                            optionValue="nome"
+                                            placeholder="Selecione"
+                                            [showClear]="true"
+                                            appendTo="body"
+                                            styleClass="p-3">
+                                    <ng-template pTemplate="selectedItem">
+                                        <div class="flex align-items-center gap-2" *ngIf="emocaoSelecionada">
+                                            <i class="pi pi-heart"></i>
+                                            <div>{{emocaoSelecionada}}</div>
+                                        </div>
+                                    </ng-template>
+                                    <ng-template let-emocao pTemplate="item">
+                                        <div class="flex align-items-center gap-2">
+                                            <i class="pi pi-heart text-500"></i>
+                                            <div>{{emocao.nome}}</div>
+                                        </div>
+                                    </ng-template>
+                                </p-dropdown>
+                            </div>
+
+                            <div class="field col-12 md:col-6 mb-5">
+                                <label for="status" class="font-medium text-900 text-lg mb-3 block">Status</label>
+                                <p-dropdown id="status" 
+                                            [options]="statusOptions" 
+                                            [(ngModel)]="experimento.statusExperimento" 
+                                            optionLabel="label" 
+                                            optionValue="value" 
+                                            placeholder="Selecione"
+                                            appendTo="body"
+                                            styleClass="p-3">
+                                    <ng-template pTemplate="selectedItem">
+                                        <div class="flex align-items-center gap-2" *ngIf="experimento.statusExperimento">
+                                            <i class="pi pi-circle-fill text-primary text-xs"></i>
+                                            <div>{{experimento.statusExperimento}}</div>
+                                        </div>
+                                    </ng-template>
+                                </p-dropdown>
+                            </div>
+                        </div>
+
+                        <div class="formgrid grid bg-gray-50 border-round p-4 mb-5 border-1 surface-border">
+                            <div class="field col-12 md:col-6 mb-0">
+                                <label for="dataInicio" class="font-medium text-900 mb-3 block">Data Início</label>
+                                <div class="p-input-icon-left w-full">
+                                    <i class="pi pi-calendar"></i>
+                                    <input type="date" pInputText id="dataInicio" [(ngModel)]="experimento.dataInicio" class="w-full p-3" />
+                                </div>
+                            </div>
+                            <div class="field col-12 md:col-6 mb-0">
+                                <label for="dataFim" class="font-medium text-900 mb-3 block">Data Fim</label>
+                                <div class="p-input-icon-left w-full">
+                                    <i class="pi pi-calendar-times"></i>
+                                    <input type="date" pInputText id="dataFim" [(ngModel)]="experimento.dataFim" class="w-full p-3" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="field mb-4">
+                            <label for="descricao" class="font-medium text-900 text-lg mb-3 block">Descrição do Ambiente</label>
+                            <textarea id="descricao" pInputTextarea [(ngModel)]="experimento.descricaoGeral" required rows="5" class="w-full p-3" placeholder="Descreva o ambiente e condições do experimento..."></textarea>
+                        </div>
 
                     </div>
-            </div>
-        </ng-template>
-          <div class="field flex flex-col mb-4">
-            <label for="descricao" class="font-semibold mb-2">Descrição do Ambiente:</label>
-            <textarea pInputTextarea id="descricao" [(ngModel)]="descricaoAmbiente" rows="5"></textarea>
-          </div>
+                </ng-template>
+
+                <ng-template pTemplate="footer">
+                    <div class="flex justify-content-end gap-3 py-2">
+                        <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary" (click)="hideDialog()"></button>
+                        <button pButton pRipple label="Salvar Alterações" icon="pi pi-check" class="p-button-primary px-4" (click)="saveExperimento()"></button>
+                    </div>
+                </ng-template>
+            </p-dialog>
+            <p-confirmDialog [style]="{width: '450px'}" acceptLabel="Sim" rejectLabel="Não" acceptButtonStyleClass="p-button-danger" rejectButtonStyleClass="p-button-text"></p-confirmDialog>
         </div>
-      </div>
-    </ng-template>
-
-    <ng-template pTemplate="footer">
-        <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-        <button pButton pRipple label="Salvar" icon="pi pi-check" class="p-button-text" (click)="saveExperimento()"></button>
-    </ng-template>
-</p-dialog>
+    </div>
+</div>

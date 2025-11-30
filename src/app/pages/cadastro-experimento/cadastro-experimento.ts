@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router'; // Importação do Router
+import { Router } from '@angular/router'; 
 import { CommonModule, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FileUploadModule } from 'primeng/fileupload';
@@ -12,7 +12,8 @@ import { DropdownModule } from 'primeng/dropdown';
 import { TextareaModule } from 'primeng/textarea';
 import { DividerModule } from 'primeng/divider';
 import { ExperimentoRequest, ExperimentoService } from '../../layout/service/experimento.service';
-import { AuthService } from '../service/auth.service'; // Importação do AuthService
+import { AuthService } from '../service/auth.service'; 
+import { Participante, ParticipanteService } from '../../layout/service/participante.service';
 
 @Component({
   selector: 'app-cadastro-experimento',
@@ -30,6 +31,7 @@ import { AuthService } from '../service/auth.service'; // Importação do AuthSe
     NgClass,
     DividerModule
   ],
+  providers: [MessageService],
   template: `
     <p-toast></p-toast>
     <div class="card">
@@ -44,6 +46,18 @@ import { AuthService } from '../service/auth.service'; // Importação do AuthSe
           </div>
 
           <div class="field flex flex-col mb-4">
+            <label for="participante" class="font-semibold mb-2">Participante Principal (*)</label>
+            <p-dropdown id="participante" 
+                        [options]="participantesDisponiveis" 
+                        [(ngModel)]="participanteSelecionado" 
+                        optionLabel="nomeCompleto" 
+                        placeholder="Selecione o participante"
+                        [filter]="true"
+                        required>
+            </p-dropdown>
+          </div>
+
+          <div class="field flex flex-col mb-4">
             <label for="dataInicio" class="font-semibold mb-2">Data de Início:</label>
             <input pInputText id="dataInicio" type="date" [(ngModel)]="experimentoModel.dataInicio" required />
           </div>
@@ -54,14 +68,24 @@ import { AuthService } from '../service/auth.service'; // Importação do AuthSe
           </div>
 
           <div class="field flex flex-col mb-4">
-            <label for="arquivoMidia" class="font-semibold mb-2">Anexar Mídia (Opcional)</label>
-            <input type="file" id="arquivoMidia" (change)="onFileSelected($event)" class="p-inputtext">
-            <div *ngIf="selectedFile" class="mt-2">
-              <span class="font-semibold">Arquivo selecionado:</span> {{ selectedFile.name }}
+            <label for="arquivoMidia" class="font-semibold mb-2">Anexar Mídias (Fotos/Vídeos)</label>
+            
+            <input type="file" id="arquivoMidia" multiple (change)="onFileSelected($event)" class="p-inputtext w-full">
+            
+            <div *ngIf="selectedFiles.length > 0" class="mt-3 surface-100 p-3 border-round">
+                <h6 class="m-0 mb-2 text-700">Arquivos Selecionados ({{selectedFiles.length}}):</h6>
+                <ul class="list-none p-0 m-0">
+                    <li *ngFor="let file of selectedFiles; let i = index" class="flex align-items-center justify-content-between p-2 bg-white border-round mb-2 shadow-1">
+                        <div class="flex align-items-center overflow-hidden">
+                            <i class="pi pi-file mr-2 text-primary"></i>
+                            <span class="white-space-nowrap overflow-hidden text-overflow-ellipsis text-sm">{{ file.name }}</span>
+                        </div>
+                        <button pButton icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text p-button-sm flex-shrink-0" (click)="removeFile(i)"></button>
+                    </li>
+                </ul>
             </div>
           </div>
-          
-        </div>
+          </div>
 
         <div class="col-12 md:col-6">
           <div class="field flex flex-col mb-4">
@@ -94,11 +118,10 @@ import { AuthService } from '../service/auth.service'; // Importação do AuthSe
 
       <p-divider></p-divider>
       <div class="flex justify-content-end">
-          <p-button label="Cadastrar" icon="pi pi-check" styleClass="w-auto" (click)="onSubmit()" [disabled]="!isFormValid()"></p-button>
+          <p-button label="Cadastrar" icon="pi pi-check" styleClass="w-auto" [loading]="isLoading" (click)="onSubmit()"></p-button>
       </div>
     </div>
-  `,
-  providers: [MessageService]
+  `
 })
 export class CadastroExperimentoComponent implements OnInit {
 
@@ -106,10 +129,14 @@ export class CadastroExperimentoComponent implements OnInit {
   emocaoSelecionada: any;
   descricaoAmbiente: string = '';
   statusOptions: any[] = [];
+  
+  participantesDisponiveis: Participante[] = [];
+  participanteSelecionado: Participante | null = null;
+  isLoading: boolean = false;
 
   experimentoModel: ExperimentoRequest = {
     nome: '',
-    descricao: '',
+    descricao: '', 
     dataInicio: '',
     dataFim: '',
     pesquisadorId: 0, 
@@ -117,22 +144,27 @@ export class CadastroExperimentoComponent implements OnInit {
     statusExperimento: 'PLANEJADO'
   };
 
-  selectedFile: File | null = null;
+  // LISTA DE ARQUIVOS
+  selectedFiles: File[] = []; 
 
   constructor(
     private experimentoService: ExperimentoService, 
     private messageService: MessageService,
     private authService: AuthService,
-    private router: Router 
+    private router: Router,
+    private participanteService: ParticipanteService
   ) {}
 
   ngOnInit() {
+    this.carregarParticipantes();
+    
     this.tiposDeEmocao = [
-        { nome: 'Alegria', styleClass: 'text-green-500' },
+        { nome: 'Alegria', styleClass: 'text-yellow-500' },
         { nome: 'Raiva', styleClass: 'text-red-500' },
         { nome: 'Tristeza', styleClass: 'text-blue-500' },
-        { nome: 'Medo', styleClass: 'text-orange-500' }
+        { nome: 'Medo', styleClass: 'text-purple-500' }
     ];
+    
     this.statusOptions = [
         { label: 'Planejado', value: 'PLANEJADO' },
         { label: 'Em Andamento', value: 'EM_ANDAMENTO' },
@@ -142,15 +174,35 @@ export class CadastroExperimentoComponent implements OnInit {
     ];
   }
     
+  carregarParticipantes(): void {
+    this.participanteService.getParticipantes().subscribe({
+      next: (participantes) => {
+        this.participantesDisponiveis = participantes;
+      },
+      error: (err) => {
+        this.messageService.add({severity:'error', summary:'Erro', detail:'Falha ao carregar participantes.'});
+      }
+    });
+  }
+    
+  // Lógica para múltiplos arquivos
   onFileSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      this.selectedFile = file;
+    if (event.target.files && event.target.files.length > 0) {
+      // Adiciona os novos arquivos à lista (mantendo os anteriores se quiser)
+      // Aqui estamos convertendo o FileList para Array e concatenando
+      this.selectedFiles = [...this.selectedFiles, ...Array.from(event.target.files as FileList)];
     }
   }
   
+  removeFile(index: number): void {
+    this.selectedFiles.splice(index, 1);
+  }
+  
   isFormValid(): boolean {
-    return !!this.experimentoModel.nome && !!this.experimentoModel.dataInicio && !!this.emocaoSelecionada;
+    return !!this.experimentoModel.nome && 
+           !!this.experimentoModel.dataInicio && 
+           !!this.emocaoSelecionada && 
+           !!this.participanteSelecionado;
   }
 
   onSubmit(): void {
@@ -161,25 +213,31 @@ export class CadastroExperimentoComponent implements OnInit {
     
     const pesquisadorId = this.authService.getPesquisadorId();
     if (!pesquisadorId) {
-        this.messageService.add({ 
-            severity: 'error', 
-            summary: 'Erro de Autenticação', 
-            detail: 'Não foi possível identificar o pesquisador.' 
-        });
+        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Usuário não autenticado.' });
         return;
     }
 
-    this.experimentoModel.pesquisadorId = pesquisadorId;
-    this.experimentoModel.tipoEmocao = this.emocaoSelecionada?.nome;
-    this.experimentoModel.descricao = `Emoção selecionada: ${this.emocaoSelecionada?.nome}. Descrição do ambiente: ${this.descricaoAmbiente}`;
+    this.isLoading = true;
 
-    console.log('Dados do experimento a serem enviados:', this.experimentoModel);
-    
+    const payload = {
+        nome: this.experimentoModel.nome,
+        dataInicio: this.experimentoModel.dataInicio,
+        dataFim: this.experimentoModel.dataFim,
+        statusExperimento: this.experimentoModel.statusExperimento,
+        pesquisadorId: pesquisadorId,
+        participanteId: this.participanteSelecionado?.id,
+        descricaoAmbiente: this.descricaoAmbiente, 
+        tipoEmocao: this.emocaoSelecionada?.nome   
+    };
+
     const formData = new FormData();
-    formData.append('experimento', new Blob([JSON.stringify(this.experimentoModel)], { type: 'application/json' }));
+    formData.append('experimento', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
     
-    if (this.selectedFile) {
-      formData.append('midia', this.selectedFile, this.selectedFile.name);
+    // Loop para adicionar múltiplos arquivos com a mesma chave 'midia'
+    if (this.selectedFiles && this.selectedFiles.length > 0) {
+      for (const file of this.selectedFiles) {
+        formData.append('midia', file, file.name);
+      }
     }
 
     this.experimentoService.criarExperimento(formData)
@@ -187,10 +245,12 @@ export class CadastroExperimentoComponent implements OnInit {
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Experimento cadastrado!' });
           setTimeout(() => {
+            this.isLoading = false;
             this.router.navigate(['/experimentos']);
           }, 1500);
         },
         error: (erro) => {
+          this.isLoading = false;
           this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao cadastrar experimento.' });
           console.error(erro);
         }
