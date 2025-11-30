@@ -1,4 +1,4 @@
-// Imports do Angular e PrimeNG (baseado no seu login.ts)
+// Imports do Angular e PrimeNG
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
@@ -11,8 +11,9 @@ import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { ToastModule } from 'primeng/toast';
 
-// Imports corretos para a funcionalidade de REGISTRO
+// Imports de Serviço
 import { PesquisadorService, PesquisadorRequest } from '../service/pesquisador.service';
+import { AuthService } from '../service/auth.service'; // Usaremos este serviço para a ativação
 
 @Component({
   selector: 'app-register',
@@ -41,21 +42,25 @@ import { PesquisadorService, PesquisadorRequest } from '../service/pesquisador.s
                     </div>
                     <div>
                         <label for="nome" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Nome</label>
-                        <input pInputText id="nome" type="text" placeholder="Seu nome completo" class="w-full md:w-[30rem] mb-6" [(ngModel)]="pesquisadorModel.nome" />
+                        <input pInputText id="nome" type="text" placeholder="Seu nome completo" class="w-full md:w-[30rem] mb-6" [(ngModel)]="pesquisadorModel.nome" [disabled]="isLoading" />
 
                         <label for="email" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-                        <input pInputText id="email" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-6" [(ngModel)]="pesquisadorModel.email" />
+                        <input pInputText id="email" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-6" [(ngModel)]="pesquisadorModel.email" [disabled]="isLoading" />
 
                         <label for="password" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Senha</label>
-                        <p-password id="password" [(ngModel)]="pesquisadorModel.senha" placeholder="Crie uma senha" [toggleMask]="true" styleClass="mb-6" [fluid]="true" [feedback]="false"></p-password>
+                        <p-password id="password" [(ngModel)]="pesquisadorModel.senha" placeholder="Crie uma senha" [toggleMask]="true" styleClass="mb-6" [fluid]="true" [feedback]="true" [disabled]="isLoading"></p-password>
+                        
+                        <label for="confirmPassword" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Confirmar Senha</label>
+                        <p-password id="confirmPassword" [(ngModel)]="confirmPassword" placeholder="Repita a senha" [toggleMask]="true" styleClass="mb-6" [fluid]="true" [feedback]="false" [disabled]="isLoading"></p-password>
 
-                        <p-button label="Registrar" styleClass="w-full" (click)="onSubmit()"></p-button>
+                        <p-button label="Registrar" styleClass="w-full" [loading]="isLoading" (click)="onSubmit()"></p-button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-  `
+  `,
+  providers: [MessageService]
 })
 export class RegisterComponent {
     pesquisadorModel: PesquisadorRequest = {
@@ -63,30 +68,65 @@ export class RegisterComponent {
         email: '',
         senha: ''
     };
+    
+    confirmPassword: string = '';
+    isLoading: boolean = false;
 
     constructor(
         private pesquisadorService: PesquisadorService,
+        private authService: AuthService, // Injetado
         private router: Router,
         private messageService: MessageService
     ) {}
 
+    // VVVV FUNÇÃO DE ATIVAÇÃO FORÇADA VVVV
+    private activateAccountRemotely() {
+        // Usa o código fixo '123456' e chama o endpoint de verificação
+        // O servidor live deve ter o PesquisadorService configurado para usar o código '123456'
+        this.authService.verificarCodigo("123456").subscribe({
+            next: () => {
+                this.messageService.add({ severity: 'info', summary: 'Sucesso!', detail: 'Conta ativada. Redirecionando para Login...' });
+                
+                // Tenta fazer o login imediatamente após a ativação
+                setTimeout(() => {
+                    this.router.navigate(['/auth/login']);
+                }, 2000); 
+            },
+            error: (err) => {
+                // Se a ativação falhar, ainda mandamos para o login
+                console.error("Falha na ativação remota:", err);
+                this.messageService.add({ severity: 'error', summary: 'Aviso', detail: 'Falha na ativação, tente logar manual.' });
+                this.router.navigate(['/auth/login']);
+            }
+        });
+    }
+    // ^^^^ FIM DA FUNÇÃO DE ATIVAÇÃO ^^^^
+
     onSubmit(): void {
-        if (!this.pesquisadorModel.nome || !this.pesquisadorModel.email || !this.pesquisadorModel.senha) {
+        this.isLoading = true;
+
+        if (!this.pesquisadorModel.nome || !this.pesquisadorModel.email || !this.pesquisadorModel.senha || !this.confirmPassword) {
             this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Todos os campos são obrigatórios.' });
+            this.isLoading = false;
+            return;
+        }
+        if (this.pesquisadorModel.senha !== this.confirmPassword) {
+            this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'As senhas digitadas não coincidem.' });
+            this.isLoading = false;
             return;
         }
     
+        // 1. CHAMA O REGISTRO
         this.pesquisadorService.criarPesquisador(this.pesquisadorModel).subscribe({
             next: (response) => {
-                // vvvv A ÚNICA MUDANÇA É AQUI vvvv
-                // 1. Mudamos a mensagem de sucesso
-                this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Cadastro realizado! Verifique seu email para o código de ativação.' });
+                this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Conta criada no servidor live! Forçando ativação...' });
                 
-                // 2. Redirecionamos para a tela de verificação, passando o email
-                this.router.navigate(['/auth/verificar'], { queryParams: { email: this.pesquisadorModel.email } });
-                // ^^^^ FIM DA MUDANÇA ^^^^
+                this.isLoading = false;
+                // 2. SE SUCESSO, CHAMA A ATIVAÇÃO FORÇADA
+                this.activateAccountRemotely();
             },
             error: (err) => {
+                this.isLoading = false;
                 const detail = err.error?.message || 'Falha ao realizar o cadastro. Verifique os dados.';
                 this.messageService.add({ severity: 'error', summary: 'Erro', detail: detail });
             }

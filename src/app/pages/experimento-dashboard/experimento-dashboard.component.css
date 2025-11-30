@@ -1,71 +1,41 @@
-/* Container principal que organiza os gráficos */
-.dashboard-container {
-  display: flex;
-  width: 100%;
-  flex-wrap: wrap; /* Permite que os gráficos quebrem para a linha de baixo em telas menores */
-  gap: 24px;       /* Espaço entre os gráficos */
-  padding: 24px;
+/* Estilos normais */
+.card {
+    background: var(--surface-card);
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
 }
 
-h1 {
-  width: 100%; /* Faz o título ocupar toda a largura */
-  margin-bottom: 16px;
-  font-size: 1.8em;
-  color: #333;
-}
+/* 3. CONFIGURAÇÃO PARA O BOTÃO DE PDF (IMPRESSÃO) */
+@media print {
+    /* Esconde elementos que não devem sair no PDF */
+    .no-print, 
+    .layout-sidebar, 
+    .layout-topbar, 
+    app-menu, 
+    app-topbar,
+    button {
+        display: none !important;
+    }
 
-/* "Card" que envolve cada gráfico */
-.chart-wrapper {
-  /* CORREÇÃO: Força o elemento a ocupar 100% da largura do contêiner, garantindo o empilhamento */
-  flex: 1 1 100%; /* Altera flex-basis de 450px para 100% */
-  margin-bottom: 24px; /* Adiciona espaço abaixo de cada bloco */
-  /* ... outros estilos de box-shadow, padding, etc. permanecem ... */
-  display: flex;
-  flex-direction: column;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-  background-color: #ffffff;
-}
+    /* Garante que o fundo branco e textos pretos sejam usados */
+    body {
+        background-color: white !important;
+        color: black !important;
+    }
 
-.chart-wrapper h3 {
-  margin-top: 0;
-  width: 100%;
-  margin-bottom: 16px;
-  text-align: center;
-  color: #555;
-  font-weight: 500;
-}
+    /* Remove sombras e bordas para ficar limpo no papel */
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+        page-break-inside: avoid; /* Evita quebrar o gráfico no meio da página */
+    }
 
-/* Container interno que define a altura do gráfico */
-.chart-inner {
-  position: relative;
-  height: 350px; /* Altura fixa para os gráficos. Ajuste conforme necessário. */
-  width: 100%;
-}
-
-.table-inner {
-    width: 100%;
-    /* Altura será dinâmica, determinada pelo conteúdo da tabela */
-}
-
-/* Estilos de tabela adicionais para formatação */
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 5px;
-    font-size: 0.9em;
-}
-
-.data-table th, .data-table td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-.data-table th {
-    background-color: #f5f5f5;
-    font-weight: bold;
-    color: #333;
+    /* Expande o conteúdo para ocupar a folha toda */
+    .layout-content-wrapper {
+        margin-left: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
 }

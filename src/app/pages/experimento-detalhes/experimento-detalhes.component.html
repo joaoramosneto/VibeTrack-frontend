@@ -37,10 +37,26 @@
                 <p class="m-0">{{ experimento.statusExperimento | titlecase }}</p>
             </div>
 
+            <!-- VVVV CORES ATUALIZADAS AQUI VVVV -->
+            <div class="field col-12 md:col-6 mb-3">
+                <label class="font-bold block mb-1">Emoção Alvo</label>
+                <p class="m-0 font-semibold"
+                   [ngClass]="{
+                       'text-yellow-500': experimento.resultadoEmocional === 'Alegria',
+                       'text-red-500': experimento.resultadoEmocional === 'Raiva',
+                       'text-blue-500': experimento.resultadoEmocional === 'Tristeza',
+                       'text-purple-500': experimento.resultadoEmocional === 'Medo',
+                       'text-primary': !experimento.resultadoEmocional
+                   }">
+                   {{ experimento.resultadoEmocional || 'Nenhuma' }}
+                </p>
+            </div>
+            <!-- ^^^^ FIM DAS CORES ATUALIZADAS ^^^^ -->
+
             <div class="field col-12">
-                <label class="font-bold block mb-1">Descrição</label>
+                <label class="font-bold block mb-1">Descrição do Ambiente</label>
                 <div class="mt-1 p-2 border-1 surface-border border-round" style="white-space: pre-wrap;">
-                    {{ experimento.descricao }}
+                    {{ experimento.descricaoGeral || 'Sem descrição.' }}
                 </div>
             </div>
 

@@ -4,34 +4,38 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../enviroments/enviroment';
 import { AuthService } from './auth.service';
 
-
-// This interface is already correctly exported
+// Interface para Registro (já existia)
 export interface PesquisadorRequest {
   nome: string;
   email: string;
   senha: string;
 }
 
+// Interface para dados do Pesquisador (já existia)
 export interface Pesquisador {
     id: number;
     nome: string;
     email: string;
     fotoUrl?: string;
-    // Adicione outros campos, como dataCadastro, se existirem no seu backend
-
 }
+
+// VVVV NOVA INTERFACE PARA TROCA DE SENHA VVVV
+export interface ChangePasswordRequest {
+    senhaAtual: string;
+    novaSenha: string;
+    confirmacaoSenha: string;
+}
+// ^^^^ FIM DA NOVA INTERFACE ^^^^
 
 @Injectable({
   providedIn: 'root'
 })
-// ADD THE 'export' KEYWORD HERE
 export class PesquisadorService {
 
   private apiUrl = `${environment.apiUrl}/pesquisadores`;
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
-   // 1. MÉTODO PARA CRIAR OS HEADERS (ESTE ESTAVA FALTANDO OU INCORRETO)
   private createAuthHeaders(): HttpHeaders {
     const token = this.authService.getToken();
     return new HttpHeaders({
@@ -47,4 +51,12 @@ export class PesquisadorService {
     const headers = this.createAuthHeaders();
     return this.http.get<Pesquisador>(`${this.apiUrl}/${id}`, { headers: headers });
   }
+
+  // VVVV NOVO MÉTODO: CHAMADA PARA ALTERAR SENHA VVVV
+  alterarSenha(dadosSenha: ChangePasswordRequest): Observable<any> {
+    const headers = this.createAuthHeaders();
+    // Chama o endpoint PUT /api/pesquisadores/me/senha
+    return this.http.put(`${this.apiUrl}/me/senha`, dadosSenha, { headers: headers, responseType: 'text' });
+  }
+  // ^^^^ FIM DO NOVO MÉTODO ^^^^
 }
