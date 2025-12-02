@@ -1,128 +1,180 @@
 <p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
 
 <div class="grid" id="relatorio-content">
     <div class="col-12">
         
-        <div class="flex justify-content-between align-items-center mb-4">
+        <div class="flex align-items-center justify-content-between mb-5 w-full">
             <div>
-                <h2 class="m-0 text-900">Dashboard de Resultados</h2>
-                <p class="text-500 m-0" *ngIf="experimento">Experimento: <strong>{{ experimento.nome }}</strong></p>
+                <h2 class="m-0 text-900 font-bold">Dashboard de Resultados</h2>
+                <p class="text-600 mt-2 m-0" *ngIf="experimento">
+                    Experimento: <strong class="text-primary">{{ experimento.nome }}</strong>
+                    <span class="mx-3 text-300">|</span> 
+                    Status: <span class="font-bold">{{ experimento.statusExperimento }}</span>
+                </p>
             </div>
-            <button pButton label="Gerar Relatório PDF" icon="pi pi-file-pdf" class="p-button-danger no-print" (click)="gerarRelatorioPDF()"></button>
+            <button pButton label="Gerar Relatório PDF" icon="pi pi-file-pdf" class="p-button-danger no-print ml-auto" (click)="gerarRelatorioPDF()"></button>
         </div>
 
-        <div class="card mb-4">
-            <h5 class="text-center">Frequência Cardíaca (BPM)</h5>
-            <div style="height: 350px;">
-                <canvas baseChart 
-                    [data]="lineChartData" 
-                    [options]="lineChartOptions" 
-                    [type]="lineChartType">
-                </canvas>
-            </div>
-        </div>
-
-        <div class="card mb-4">
-            <h5>Valores Detalhados</h5>
-            <table class="w-full text-left" style="border-collapse: collapse;">
-                <thead class="bg-surface-100">
+        <div class="card mb-5 shadow-1 p-4">
+            <h5 class="mb-4 text-800 font-bold">Participantes Inscritos</h5>
+            <p-table [value]="experimento?.participantes || []" [rows]="5" [paginator]="true" responsiveLayout="scroll" styleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
                     <tr>
-                        <th class="p-3 border-bottom-1 surface-border">Tipo de Frequência</th>
-                        <th class="p-3 border-bottom-1 surface-border">Valor (BPM)</th>
+                        <th style="width: 40%">Nome</th>
+                        <th style="width: 40%">Email</th>
+                        <th style="width: 20%">Nascimento</th>
                     </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let row of tableData">
-                        <td class="p-3 border-bottom-1 surface-border">{{ row.tipoDado }}</td>
-                        <td class="p-3 border-bottom-1 surface-border font-bold">{{ row.valor }}</td>
+                </ng-template>
+                <ng-template pTemplate="body" let-participante>
+                    <tr>
+                        <td><span class="font-semibold">{{ participante.nomeCompleto || participante.nome }}</span></td>
+                        <td class="text-600">{{ participante.email }}</td>
+                        <td>{{ participante.dataNascimento | date:'dd/MM/yyyy' }}</td>
                     </tr>
-                    <tr *ngIf="tableData.length === 0">
-                        <td colspan="2" class="p-3 text-center">Sem dados coletados.</td>
-                    </tr>
-                </tbody>
-            </table>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr><td colspan="3" class="text-center p-4 text-500">Nenhum participante vinculado.</td></tr>
+                </ng-template>
+            </p-table>
         </div>
 
+        <div class="grid mb-4">
+            <div class="col-12 md:col-6">
+                <div class="card h-full shadow-1 p-4">
+                    <h5 class="text-center mb-4 font-bold">Frequência Cardíaca (BPM)</h5>
+                    <div style="height: 300px;">
+                        <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [type]="lineChartType"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 md:col-6">
+                 <div class="card h-full shadow-1 p-4">
+                    <h5 class="mb-4 font-bold">Valores Detalhados</h5>
+                    <table class="w-full text-left" style="border-collapse: separate; border-spacing: 0;">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="p-3 border-bottom-1 surface-border font-semibold">Tipo</th>
+                                <th class="p-3 border-bottom-1 surface-border font-semibold">Valor (BPM)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let row of tableData">
+                                <td class="p-3 border-bottom-1 surface-border">{{ row.tipoDado }}</td>
+                                <td class="p-3 border-bottom-1 surface-border font-bold text-900">{{ row.valor }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
         <div class="grid">
+            
             <div class="col-12 md:col-6">
-                <div class="card h-full flex flex-column">
-                    <div class="flex align-items-center justify-content-between mb-3">
-                        <h5 class="m-0">Galeria de Mídia</h5>
+                <div class="card h-full flex flex-column p-4 shadow-1">
+                    
+                    <div class="flex justify-content-between align-items-center mb-3">
+                        <h5 class="m-0 font-bold text-900">Galeria de Mídia</h5>
+                        <span class="bg-blue-50 text-blue-600 px-3 py-1 border-round font-bold text-sm" *ngIf="experimento?.midias?.length">
+                            {{ experimento?.midias?.length }} arquivos
+                        </span>
                     </div>
 
-                    <div *ngIf="experimento && experimento.urlsMidia && experimento.urlsMidia.length > 0; else noMedia" class="flex-grow-1 bg-gray-50 border-round p-2">
-                        
-                        <p-galleria [value]="experimento.urlsMidia" 
-                                    [responsiveOptions]="responsiveOptions" 
-                                    [containerStyle]="{'max-width': '100%'}" 
-                                    [numVisible]="3" 
-                                    [circular]="true" 
-                                    [showItemNavigators]="true" 
-                                    [showThumbnails]="true">
+                    <div class="flex-grow-1 mb-4">
+                        <div *ngIf="experimento?.midias && experimento!.midias.length > 0; else noMedia" 
+                             class="gallery-wrapper">
                             
-                            <ng-template pTemplate="item" let-item>
-                                <p-image [src]="item" alt="Mídia" width="100%" [preview]="true" imageClass="w-full h-20rem object-contain bg-black-alpha-10 border-round"></p-image>
-                            </ng-template>
-                            
-                            <ng-template pTemplate="thumbnail" let-item>
-                                <div class="grid grid-nogutter justify-content-center">
-                                    <img [src]="item" style="display: block;" class="w-4rem h-3rem object-cover border-round" />
-                                </div>
-                            </ng-template>
-                        </p-galleria>
+                            <p-galleria [value]="experimento!.midias" 
+                                        [numVisible]="4" 
+                                        [circular]="true" 
+                                        [showItemNavigators]="true" 
+                                        [showThumbnails]="true"
+                                        [responsiveOptions]="responsiveOptions"
+                                        [containerStyle]="{'width': '100%'}"
+                                        thumbnailsPosition="bottom">
 
-                    </div>
-                    <ng-template #noMedia>
-                        <div class="flex-grow-1 flex flex-column align-items-center justify-content-center bg-gray-50 border-round p-5 text-center text-500">
-                            <i class="pi pi-image text-6xl mb-3 text-300"></i>
-                            <p class="m-0 font-medium">Nenhuma mídia anexada.</p>
+                                <ng-template pTemplate="item" let-item>
+                                    <div class="gallery-stage">
+                                        <div class="delete-btn-overlay">
+                                            <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger shadow-2" 
+                                                    (click)="deletarMidia(item)" pTooltip="Excluir Mídia" tooltipPosition="left"></button>
+                                        </div>
+
+                                        <img *ngIf="isImage(item)" [src]="item.url" class="gallery-media-content" />
+                                        <video *ngIf="isVideo(item)" [src]="item.url" controls class="gallery-media-content"></video>
+                                        
+                                        <div *ngIf="!isImage(item) && !isVideo(item)" class="text-center text-white">
+                                            <i class="pi pi-file text-6xl text-primary-400 mb-2"></i>
+                                            <p class="text-lg m-0">{{item.nome}}</p>
+                                        </div>
+                                    </div>
+                                </ng-template>
+
+                                <ng-template pTemplate="thumbnail" let-item>
+                                    <div class="thumbnail-container">
+                                        <img *ngIf="isImage(item)" [src]="item.url" class="thumbnail-image" />
+                                        <div *ngIf="!isImage(item)" class="text-white text-center w-full">
+                                            <i [class]="isVideo(item) ? 'pi pi-video' : 'pi pi-file'"></i>
+                                        </div>
+                                    </div>
+                                </ng-template>
+                            </p-galleria>
                         </div>
-                    </ng-template>
 
-                    <div *ngIf="experimento" class="mt-4 pt-3 border-top-1 surface-border text-center no-print">
-                        <input type="file" #fileInput multiple (change)="onFileSelected($event)" style="display: none;" accept="image/*" />
-                        
-                        <div class="flex flex-column gap-2">
-                            <p-button label="Adicionar/Alterar Mídias" 
-                                      icon="pi pi-images" 
-                                      styleClass="p-button-outlined w-full" 
-                                      (click)="fileInput.click()" 
-                                      [disabled]="isLoadingMidia">
-                            </p-button>
-
-                            <div *ngIf="selectedFiles.length > 0" class="surface-100 p-2 border-round text-sm">
-                                <div class="font-bold mb-2 text-primary">{{ selectedFiles.length }} arquivos selecionados</div>
-                                <div class="flex gap-2">
-                                    <p-button label="Confirmar Upload" icon="pi pi-upload" styleClass="p-button-sm flex-1" (click)="alterarMidia()" [loading]="isLoadingMidia"></p-button>
-                                    <p-button label="Cancelar" icon="pi pi-times" styleClass="p-button-text p-button-danger p-button-sm flex-1" (click)="cancelarAlteracaoMidia()"></p-button>
+                        <ng-template #noMedia>
+                            <div class="flex flex-column align-items-center justify-content-center bg-gray-50 border-round border-dashed border-1 border-300 p-6 text-center" style="min-height: 300px;">
+                                <div class="bg-white border-circle p-3 shadow-1 mb-3">
+                                    <i class="pi pi-images text-4xl text-400"></i>
                                 </div>
+                                <span class="text-800 font-semibold text-lg">Nenhuma mídia encontrada</span>
+                                <p class="text-500 mt-2 line-height-3">Use o botão abaixo para adicionar.</p>
                             </div>
+                        </ng-template>
+                    </div>
+
+                    <div *ngIf="experimento" class="media-footer">
+                        <input type="file" #fileInput multiple (change)="onFileSelected($event)" style="display: none;" accept="image/*,video/*" />
+                        
+                        <div *ngIf="selectedFiles.length === 0" class="w-full">
+                            <button pButton label="Adicionar Nova Mídia" icon="pi pi-plus" class="p-button-outlined w-full p-3 font-bold" 
+                                    (click)="fileInput.click()" [disabled]="isLoadingMidia"></button>
+                        </div>
+
+                        <div *ngIf="selectedFiles.length > 0" class="w-full">
+                            <div class="flex justify-content-between align-items-center mb-3">
+                                <span class="font-bold text-900">Selecionados: {{ selectedFiles.length }}</span>
+                                <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text p-button-danger p-button-sm" (click)="cancelarAlteracaoMidia()"></button>
+                            </div>
+                            <button pButton label="Enviar Arquivos Agora" icon="pi pi-cloud-upload" class="w-full p-3 font-bold" 
+                                    (click)="alterarMidia()" [loading]="isLoadingMidia"></button>
                         </div>
                     </div>
+
                 </div>
             </div>
 
             <div class="col-12 md:col-6">
-                <div class="card h-full flex flex-column">
-                    <h5>Anotações & Conclusões</h5>
-                    <p class="text-sm text-500 mb-2">Edite este campo para adicionar suas observações.</p>
+                <div class="card h-full p-4 shadow-1 notes-container">
                     
-                    <textarea *ngIf="experimento" 
-                              pInputTextarea 
-                              [(ngModel)]="experimento.descricaoGeral" 
-                              rows="10" 
-                              class="w-full mb-3 flex-grow-1" 
-                              placeholder="Escreva aqui..."></textarea>
-
-                    <div *ngIf="!experimento" class="flex align-items-center justify-content-center flex-grow-1">
-                        <i class="pi pi-spin pi-spinner text-3xl"></i>
+                    <div class="flex justify-content-between align-items-center mb-3">
+                        <h5 class="m-0 font-bold text-900">Anotações do Pesquisador</h5>
+                       
                     </div>
                     
-                    <div class="text-right no-print">
-                        <button pButton label="Salvar Notas" icon="pi pi-save" [loading]="isLoadingSalvar" (click)="salvarNotas()" [disabled]="!experimento"></button>
+                    <textarea *ngIf="experimento" pInputTextarea 
+                              [(ngModel)]="experimento.descricaoGeral" 
+                              class="w-full flex-grow-1 p-3 line-height-3 text-lg" 
+                              style="resize: none; border-color: #e5e7eb; min-height: 200px;"
+                              placeholder="Digite aqui as observações sobre o experimento..."></textarea>
+                    
+                    <div class="save-btn-container w-full">
+                        <button pButton label="Salvar Alterações" icon="pi pi-save" class="px-4 py-3 font-bold w-full"
+                                [loading]="isLoadingSalvar" (click)="salvarNotas()" [disabled]="!experimento"></button>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
