@@ -1,41 +1,106 @@
-/* Estilos normais */
-.card {
-    background: var(--surface-card);
-    padding: 2rem;
-    border-radius: 10px;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
+/* --- FIX FINAL DE SCROLLBAR AZUL/VERMELHO (PrimeNG) --- */
+/* Garante que os indicadores de rolagem do tema desapareçam */
+:host ::ng-deep .p-galleria-indicators {
+    display: none !important; 
+}
+:host ::ng-deep .p-galleria-thumbnail-container {
+    overflow: hidden !important; 
 }
 
-/* 3. CONFIGURAÇÃO PARA O BOTÃO DE PDF (IMPRESSÃO) */
-@media print {
-    /* Esconde elementos que não devem sair no PDF */
-    .no-print, 
-    .layout-sidebar, 
-    .layout-topbar, 
-    app-menu, 
-    app-topbar,
-    button {
-        display: none !important;
-    }
+/* --- ESTRUTURA E ESPAÇAMENTO DA GALERIA --- */
+.gallery-wrapper {
+    background-color: #080808; 
+    border-radius: 8px; 
+    overflow: hidden; 
+    border: 1px solid #333;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+}
 
-    /* Garante que o fundo branco e textos pretos sejam usados */
-    body {
-        background-color: white !important;
-        color: black !important;
-    }
+.gallery-stage {
+    width: 100%;
+    height: 400px;
+    position: relative;
+    background-color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-    /* Remove sombras e bordas para ficar limpo no papel */
-    .card {
-        box-shadow: none !important;
-        border: 1px solid #ddd !important;
-        page-break-inside: avoid; /* Evita quebrar o gráfico no meio da página */
-    }
+.gallery-media-content {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; 
+    display: block;
+}
 
-    /* Expande o conteúdo para ocupar a folha toda */
-    .layout-content-wrapper {
-        margin-left: 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
-    }
+/* Botão Excluir (Flutuante) */
+.delete-btn-overlay {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.gallery-stage:hover .delete-btn-overlay {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Miniaturas */
+.thumbnail-container {
+    width: 100%;
+    height: 70px;
+    background-color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+.thumbnail-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+    opacity: 0.7;
+}
+
+/* Destaque para a miniatura selecionada (PrimeNG) */
+:host ::ng-deep .p-galleria-thumbnail-item-current .thumbnail-image {
+    opacity: 1;
+    border: 2px solid var(--primary-color);
+}
+
+/* --- RODAPÉ E BOTÕES (Espaçamento Vertical) --- */
+.media-footer {
+    border-top: 1px solid #e0e0e0; 
+    padding-top: 20px; /* Garante espaço acima do botão */
+    margin-top: auto;
+}
+
+.save-btn-container {
+    border-top: 1px solid #e0e0e0;
+    padding-top: 20px; /* Garante espaço acima do botão */
+    text-align: right; 
+}
+.notes-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Lista de arquivos selecionados */
+.file-list-item {
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
