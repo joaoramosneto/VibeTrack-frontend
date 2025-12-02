@@ -48,7 +48,7 @@ import { ExperimentoService } from '../../../layout/service/experimento.service'
         <p-table [value]="experimentos" [rows]="5" [paginator]="true" responsiveLayout="scroll">
             <ng-template pTemplate="header">
                 <tr>
-                     <th style="width: 45%">Nome do Experimento</th>
+                    <th>Mídia</th> <th style="width: 45%">Nome do Experimento</th>
                     <th>Nº de Participantes</th>
                     <th>Status</th>
                     <th>Pesquisador</th>
@@ -57,7 +57,13 @@ import { ExperimentoService } from '../../../layout/service/experimento.service'
             </ng-template>
             <ng-template pTemplate="body" let-experimento>
                 <tr>
-                 
+                    <td>
+                        <img *ngIf="experimento.urlMidia" [src]="experimento.urlMidia" [alt]="experimento.nome" class="thumbnail">
+
+                        <div *ngIf="!experimento.urlMidia" class="thumbnail-placeholder">
+                            <i class="pi pi-image" style="font-size: 1.5rem"></i>
+                        </div>
+                    </td>
                     <td>{{ experimento.nome }}</td>
                     <td>{{ experimento.participantes?.length || 0 }}</td>
                     <td>

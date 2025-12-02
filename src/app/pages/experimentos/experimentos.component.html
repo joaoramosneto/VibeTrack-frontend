@@ -3,19 +3,13 @@
         <div class="card px-6 py-6">
             <p-toast></p-toast>
             
-          <div class="flex align-items-center justify-content-between mb-4 w-full">
-    <div>
-        <h3 class="m-0 text-900 font-medium">Gerenciamento de Experimentos</h3>
-        <p class="text-500 m-0">Visualize e edite seus experimentos.</p>
-    </div>
-    
-    <button pButton pRipple 
-            label="Novo Experimento" 
-            icon="pi pi-plus" 
-            class="p-button-raised p-button-primary ml-auto" 
-            (click)="novoExperimento()">
-    </button>
-</div>
+            <div class="flex align-items-center justify-content-between mb-4">
+                <div>
+                    <h3 class="m-0 text-900 font-medium">Gerenciamento de Experimentos</h3>
+                    <p class="text-500 m-0">Visualize e edite seus experimentos.</p>
+                </div>
+                <button pButton pRipple label="Novo Experimento" icon="pi pi-plus" class="p-button-raised p-button-primary" (click)="novoExperimento()"></button>
+            </div>
 
             <p-table #dt [value]="experimentos()" [rows]="10" [paginator]="true" responsiveLayout="scroll" [rowHover]="true" dataKey="id"
                      styleClass="p-datatable-gridlines">

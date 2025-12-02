@@ -1,0 +1,46 @@
+/* Estilos básicos para a tabela */
+.participante-table {
+  width: 100%;
+  border-collapse: collapse; /* Remove espaço entre bordas */
+  margin-top: 20px;
+  
+  th, td {
+    border: 1px solid #ddd; /* Borda cinza clara */
+    padding: 10px;
+    text-align: left;
+  }
+  
+  th {
+    background-color: #f4f4f4; /* Fundo cinza claro para o cabeçalho */
+    font-weight: bold;
+  }
+
+  tbody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Linhas alternadas (zebradas) */
+  }
+
+  tbody tr:hover {
+    background-color: #f1f1f1; /* Destaque ao passar o mouse */
+  }
+}
+
+/* Mensagens de estado */
+.loading-message, .empty-message {
+  color: #555;
+  font-style: italic;
+  padding: 20px;
+  text-align: center;
+}
+
+.error-message {
+  color: #D8000C; /* Vermelho */
+  background-color: #FFD2D2; /* Fundo vermelho claro */
+  border: 1px solid #D8000C;
+  padding: 15px;
+  border-radius: 5px;
+  margin-top: 20px;
+
+  button {
+    margin-left: 15px;
+  }
+}

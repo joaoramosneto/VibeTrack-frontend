@@ -1,71 +1,67 @@
-
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-
-// Imports Visuais do PrimeNG
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { ToastModule } from 'primeng/toast';
-import { ToolbarModule } from 'primeng/toolbar';
-
-// Serviços e Interfaces
-import { MessageService } from 'primeng/api';
+// 1. Importar o Serviço e a Interface do mesmo arquivo
 import { ParticipanteService, Participante } from '../../layout/service/participante.service'; 
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { DialogModule } from 'primeng/dialog';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TableModule } from 'primeng/table';
+import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
+// (Ajuste o caminho '.._service/participante.service' conforme necessário)
 
 @Component({
-  selector: 'app-participantes',
-  standalone: true,
-  imports: [
+  selector: 'app-participante', // Você usará <app-participante> no HTML para chamar este componente
+  templateUrl: './participantes.component.html',
+  
+  imports:[
     CommonModule,
+    ProgressSpinnerModule,
+    CardModule,
     TableModule,
     ButtonModule,
-    RippleModule,
+    DialogModule,
     ToastModule,
-    ToolbarModule
+    TooltipModule,
+    RouterLink
   ],
-  templateUrl: './participantes.component.html',
-  providers: [MessageService]
-  // REMOVI A LINHA 'styleUrls' DAQUI
+  styleUrls: ['./participantes.components.css']
+  
 })
 export class ParticipanteComponent implements OnInit {
 
+  // 2. Propriedades para armazenar os dados, estado de loading e erros
   participantes: Participante[] = [];
   isLoading: boolean = true;
+  error: string | null = null;
 
-  constructor(
-    private participanteService: ParticipanteService,
-    private messageService: MessageService
-  ) {}
+  // 3. Injetar o serviço no construtor
+  constructor(private participanteService: ParticipanteService) { }
 
+  // 4. ngOnInit é chamado automaticamente quando o componente é carregado
   ngOnInit(): void {
     this.carregarParticipantes();
   }
 
+  // 5. Método que chama o serviço
   carregarParticipantes(): void {
-    this.isLoading = true;
+    this.isLoading = true; // Inicia o loading
+    this.error = null; // Limpa erros anteriores
 
     this.participanteService.getParticipantes().subscribe({
-      next: (data) => {
-        this.participantes = data;
-        this.isLoading = false;
-        console.log("Participantes carregados:", data);
+      // 6. Callback de Sucesso
+      next: (data: Participante[]) => {
+        this.participantes = data; // Armazena os dados recebidos
+        this.isLoading = false; // Para o loading
       },
-      error: (err) => {
+      // 7. Callback de Erro
+      error: (err: any) => {
         console.error('Erro ao buscar participantes:', err);
-        // Exibe o erro visualmente usando o Toast do PrimeNG
-        this.messageService.add({ 
-            severity: 'error', 
-            summary: 'Erro', 
-            detail: 'Não foi possível carregar a lista de participantes.' 
-        });
-        this.isLoading = false;
+        this.error = 'Não foi possível carregar a lista de participantes. Tente novamente mais tarde.';
+        this.isLoading = false; // Para o loading
       }
     });
-  }
-  
-  // Atalho para o botão de refresh
-  refresh() {
-    this.carregarParticipantes();
   }
 }

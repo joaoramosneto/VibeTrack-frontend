@@ -23,14 +23,15 @@ export class AppMenu implements OnInit {
             {
                 label: 'Home',
                 items: [
+                    // ALTERADO: Label para 'Home' e rota para '/home'
                     { label: 'Home', icon: 'pi pi-fw pi-home', routerLink: ['/home'] }
                 ]
             },
             {
                 label: 'Experimentos',
                 items: [
-                    { label: 'Lista de Experimentos', icon: 'pi pi-fw pi-list', routerLink: ['/experimentos'] },
-                    { label: 'Cadastro de Experimento', icon: 'pi pi-fw pi-plus', routerLink: ['/cadastro-experimento'] },
+                    { label: 'Lista de Experimentos',  routerLink: ['/experimentos'] },
+                    { label: 'Cadastro de Experimento',  routerLink: ['/cadastro-experimento'] },
                 ]
             },
             {
@@ -40,18 +41,6 @@ export class AppMenu implements OnInit {
                     { label: 'Participantes', icon: 'pi pi-fw pi-users', routerLink: ['/participantes'] }
                 ]
             },
-            // VVVV NOVO BLOCO: PESQUISADORES VVVV
-            {
-                label: 'Pesquisadores',
-                items: [
-                    { 
-                        label: 'Lista de Pesquisadores', 
-                        icon: 'pi pi-fw pi-id-card', // Ícone de crachá/identificação
-                        routerLink: ['/pesquisadores'] 
-                    }
-                ]
-            },
-            // ^^^^ FIM DO BLOCO NOVO ^^^^
             {
                 label: 'Perfil',
                 items: [

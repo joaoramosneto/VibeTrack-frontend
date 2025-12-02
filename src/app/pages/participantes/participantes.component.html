@@ -1,61 +1,41 @@
-<div class="grid">
-    <div class="col-12">
-        <div class="card px-6 py-6">
-            <!-- Componente de notificação flutuante -->
-            <p-toast></p-toast>
-            
-            <!-- Cabeçalho -->
-            <div class="flex align-items-center justify-content-between mb-4 w-full">
-                <div>
-                    <h3 class="m-0 text-900 font-medium">Lista de Participantes</h3>
-                    <p class="text-500 m-0">Visualize os participantes cadastrados no sistema.</p>
-                </div>
-                
-                <!-- Botão Refresh (Alinhado à direita) -->
-                <button pButton pRipple 
-                        label="Atualizar Lista" 
-                        icon="pi pi-refresh" 
-                        class="p-button-outlined ml-auto" 
-                        (click)="refresh()">
-                </button>
-            </div>
+<div class="participante-container">
+  
+  <h2>Lista de Participantes</h2>
 
-            <!-- Tabela -->
-            <p-table #dt [value]="participantes" [rows]="10" [paginator]="true" 
-                     [loading]="isLoading"
-                     responsiveLayout="scroll" [rowHover]="true" dataKey="id"
-                     styleClass="p-datatable-gridlines">
-                
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th pSortableColumn="id" style="width: 10%">ID <p-sortIcon field="id"></p-sortIcon></th>
-                        <th pSortableColumn="nomeCompleto" style="width: 35%">Nome Completo <p-sortIcon field="nomeCompleto"></p-sortIcon></th>
-                        <th pSortableColumn="email" style="width: 35%">Email <p-sortIcon field="email"></p-sortIcon></th>
-                        <th pSortableColumn="dataNascimento" style="width: 20%">Data de Nascimento <p-sortIcon field="dataNascimento"></p-sortIcon></th>
-                    </tr>
-                </ng-template>
+  <div *ngIf="isLoading" class="loading-message">
+    <p>Carregando...</p>
+  </div>
 
-                <ng-template pTemplate="body" let-p>
-                    <tr>
-                        <td><span class="text-700">#{{p.id}}</span></td>
-                        <td><span class="font-bold text-900">{{p.nomeCompleto}}</span></td>
-                        <td><span class="text-700">{{p.email}}</span></td>
-                        <td>
-                            <!-- Formatação Brasileira -->
-                            <span class="text-700">{{p.dataNascimento | date:'dd/MM/yyyy'}}</span>
-                        </td>
-                    </tr>
-                </ng-template>
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+    <button (click)="carregarParticipantes()">Tentar Novamente</button>
+  </div>
 
-                <ng-template pTemplate="emptymessage">
-                    <tr>
-                        <td colspan="4" class="text-center p-5">
-                            <i class="pi pi-user-minus text-4xl text-500 mb-3 block"></i>
-                            <span class="text-500">Nenhum participante encontrado.</span>
-                        </td>
-                    </tr>
-                </ng-template>
-            </p-table>
-        </div>
+  <div *ngIf="!isLoading && !error">
+
+    <div *ngIf="participantes.length === 0" class="empty-message">
+      <p>Nenhum participante encontrado.</p>
     </div>
+
+    <table *ngIf="participantes.length > 0" class="participante-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome Completo</th>
+          <th>Email</th>
+          <th>Data de Nascimento</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of participantes">
+          <td>{{ p.id }}</td>
+          <td>{{ p.nomeCompleto }}</td>
+          <td>{{ p.email }}</td>
+          <td>{{ p.dataNascimento | date: 'dd/MM/yyyy' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
 </div>

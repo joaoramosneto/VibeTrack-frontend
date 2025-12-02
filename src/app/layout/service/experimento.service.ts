@@ -5,15 +5,6 @@ import { environment } from '../../../enviroments/enviroment';
 import { AuthService } from '../../pages/service/auth.service';
 import { Participante } from './participante.service'; 
 
-// VVVV 1. NOVA INTERFACE: Representa o objeto de mídia que vem do banco VVVV
-export interface Midia {
-  id: number;
-  nome: string;
-  tipo: string;
-  url: string;
-}
-// ^^^^ FIM ^^^^
-
 export interface ExperimentoRequest {
   nome: string;
   descricao: string; 
@@ -22,6 +13,9 @@ export interface ExperimentoRequest {
   pesquisadorId: number;
   tipoEmocao: string;
   statusExperimento: string;
+  // VVVV MUDANÇA: AGORA É UMA LISTA DE STRINGS VVVV
+  urlsMidia?: string[]; 
+  // ^^^^ FIM VVVV
   participanteId?: number; 
 }
 
@@ -40,12 +34,13 @@ export interface Experimento {
   participantes: Participante[];
   participantePrincipal?: Participante; 
 
-  // VVVV 2. ATUALIZADO: Agora é uma lista de OBJETOS Midia VVVV
-  midias: Midia[]; 
-  // ^^^^ FIM ^^^^
+  // VVVV MUDANÇA: AGORA É UMA LISTA DE STRINGS VVVV
+  urlsMidia: string[]; 
+  // ^^^^ FIM VVVV
 }
 
 
+// Interfaces para a SESSÃO
 export interface SessaoColetaRequest {
   experimentoId: number;
   participanteId: number;
@@ -56,10 +51,12 @@ export interface SessaoColetaResponse {
   dataExpiracao: string;
 }
 
+// Interface para o DASHBOARD
 export interface DashboardDTO {
   frequenciaCardiaca: any;
   distribuicaoEmocoes: any;
 }
+
 
 @Injectable({
   providedIn: 'root'
@@ -67,7 +64,6 @@ export interface DashboardDTO {
 export class ExperimentoService {
 
   private apiUrl = `${environment.apiUrl}/experimentos`;
-  private midiasApiUrl = `${environment.apiUrl}/midias`; // Endpoint para deletar mídia individual
   private sessoesApiUrl = `${environment.apiUrl}/sessoes`;
 
   constructor(private http: HttpClient, private authService: AuthService) { }
@@ -97,13 +93,6 @@ export class ExperimentoService {
     const headers = this.createAuthHeaders();
     return this.http.put<Experimento>(`${this.apiUrl}/${id}/midia`, formData, { headers: headers });
   }
-  
-  // VVVV 3. NOVO MÉTODO: Deletar uma mídia específica pelo ID VVVV
-  deleteMidia(id: number): Observable<void> {
-    const headers = this.createAuthHeaders();
-    return this.http.delete<void>(`${this.midiasApiUrl}/${id}`, { headers: headers });
-  }
-  // ^^^^ FIM ^^^^
 
   getExperimentos(): Observable<Experimento[]> {
     const headers = this.createAuthHeaders();

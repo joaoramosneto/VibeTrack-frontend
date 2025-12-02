@@ -33,13 +33,13 @@ export class ExperimentosComponent implements OnInit {
 
   experimentos = signal<Experimento[]>([]);
 
-  // VVVV CORREÇÃO FINAL: USAR 'midias: []' (LISTA DE OBJETOS) VVVV
+  // VVVV CORREÇÃO: Usar urlsMidia (plural) e inicializar como array vazio [] VVVV
   experimento: Experimento = { 
       id: 0, 
       nome: '', 
       descricaoGeral: '',      
       resultadoEmocional: '',  
-      midias: [],              // CORRIGIDO: Era 'urlsMidia', agora é 'midias'
+      urlsMidia: [], // <--- CORRIGIDO DE 'urlMidia: null' PARA 'urlsMidia: []'
       dataInicio: '', 
       dataFim: '', 
       pesquisador: { id: 0, nome: '' }, 
@@ -148,8 +148,10 @@ export class ExperimentosComponent implements OnInit {
         dataFim: this.experimento.dataFim,
         statusExperimento: this.experimento.statusExperimento,
         pesquisadorId: this.experimento.pesquisador.id,
-        tipoEmocao: this.experimento.resultadoEmocional
-        // Nota: Não enviamos 'midias' aqui
+        tipoEmocao: this.experimento.resultadoEmocional, 
+        
+        // VVVV CORREÇÃO: Usar urlsMidia VVVV
+        urlsMidia: this.experimento.urlsMidia 
     };
 
     this.experimentoService.updateExperimento(this.experimento.id, dadosParaAtualizar as any).subscribe({
