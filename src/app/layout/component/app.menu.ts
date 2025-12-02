@@ -22,27 +22,27 @@ export class AppMenu implements OnInit {
         this.model = [
             {
                 label: 'Home',
-                items: [
-                    // ALTERADO: Label para 'Home' e rota para '/home'
-                    { label: 'Home', icon: 'pi pi-fw pi-home', routerLink: ['/home'] }
-                ]
+                items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
             },
             {
                 label: 'Experimentos',
                 items: [
+                    // LINHA ADICIONADA AQUI:
                     { label: 'Lista de Experimentos',  routerLink: ['/experimentos'] },
+                    
                     { label: 'Cadastro de Experimento',  routerLink: ['/cadastro-experimento'] },
+                   
                 ]
             },
             {
                 label: 'Participantes',
                 items: [
                     { label: 'Cadastro de Participante', icon: 'pi pi-fw pi-user-plus', routerLink: ['/participantes/novo'] },
-                    { label: 'Participantes', icon: 'pi pi-fw pi-users', routerLink: ['/participantes'] }
+                    { label: 'Participantes', icon: 'pi pi-fw pi-users', routerLink: ['/participantes'] } // <-- Adicione aqui
                 ]
             },
             {
-                label: 'Perfil',
+                label: 'Perfil', // NOVO: Seção para o perfil do usuário
                 items: [
                     { label: 'Meu Perfil', icon: 'pi pi-fw pi-user', routerLink: ['/perfil'] }
                 ]

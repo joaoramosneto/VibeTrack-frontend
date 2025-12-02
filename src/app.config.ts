@@ -7,7 +7,6 @@ import { providePrimeNG } from 'primeng/config';
 import { appRoutes } from './app.routes';
 import { MessageService } from 'primeng/api';
 import { PesquisadorService } from './app/pages/service/pesquisador.service';
-import 'jspdf-autotable';
 
 export const appConfig: ApplicationConfig = {
     providers: [

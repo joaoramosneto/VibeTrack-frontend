@@ -1,42 +1,38 @@
+// src/app/layout/service/experimento.service.ts
+
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../enviroments/enviroment';
 import { AuthService } from '../../pages/service/auth.service';
-import { Participante } from './participante.service'; 
+import { Participante } from './participante.service'; // <-- 1. IMPORTE A INTERFACE PARTICIPANTE
 
+/**
+ * Interface para a CRIAÇÃO de um experimento.
+ */
 export interface ExperimentoRequest {
   nome: string;
-  descricao: string; 
+  descricao: string;
   dataInicio: string;
   dataFim: string;
   pesquisadorId: number;
   tipoEmocao: string;
   statusExperimento: string;
-  // VVVV MUDANÇA: AGORA É UMA LISTA DE STRINGS VVVV
-  urlsMidia?: string[]; 
-  // ^^^^ FIM VVVV
-  participanteId?: number; 
 }
 
+/**
+ * Interface para a RESPOSTA do backend (o que é listado na tabela).
+ */
 export interface Experimento {
   id: number;
   nome: string;
-  
-  descricaoGeral: string;     
-  resultadoEmocional: string; 
-  
+  descricao: string;
   dataInicio: string;
   dataFim: string;
   pesquisador: { id: number, nome: string };
   statusExperimento: string;
-  
-  participantes: Participante[];
-  participantePrincipal?: Participante; 
-
-  // VVVV MUDANÇA: AGORA É UMA LISTA DE STRINGS VVVV
-  urlsMidia: string[]; 
-  // ^^^^ FIM VVVV
+  tipoEmocao: string;
+  participantes: Participante[]; // <-- 2. ADICIONE A PROPRIEDADE QUE FALTAVA
 }
 
 
@@ -53,8 +49,14 @@ export interface SessaoColetaResponse {
 
 // Interface para o DASHBOARD
 export interface DashboardDTO {
-  frequenciaCardiaca: any;
-  distribuicaoEmocoes: any;
+  frequenciaCardiaca: {
+    labels: string[];
+    datasets: { label: string; data: number[] }[];
+  };
+  distribuicaoEmocoes: {
+    labels: string[];
+    data: number[];
+  };
 }
 
 
@@ -70,11 +72,12 @@ export class ExperimentoService {
 
   private createAuthHeaders(): HttpHeaders {
     const token = this.authService.getToken();
-    let headers = new HttpHeaders();
     if (token) {
-      headers = headers.set('Authorization', `Bearer ${token}`);
+      return new HttpHeaders({
+        'Authorization': `Bearer ${token}`
+      });
     }
-    return headers;
+    return new HttpHeaders();
   }
 
   iniciarSessaoColeta(request: SessaoColetaRequest): Observable<SessaoColetaResponse> {
@@ -89,11 +92,6 @@ export class ExperimentoService {
     return this.http.post<Experimento>(this.apiUrl, formData, { headers: headers });
   }
 
-  updateExperimentoMidia(id: number, formData: FormData): Observable<Experimento> {
-    const headers = this.createAuthHeaders();
-    return this.http.put<Experimento>(`${this.apiUrl}/${id}/midia`, formData, { headers: headers });
-  }
-
   getExperimentos(): Observable<Experimento[]> {
     const headers = this.createAuthHeaders();
     return this.http.get<Experimento[]>(this.apiUrl, { headers: headers });
@@ -105,7 +103,7 @@ export class ExperimentoService {
   }
 
   updateExperimento(id: number, experimentoData: Partial<ExperimentoRequest>): Observable<Experimento> {
-    const headers = this.createAuthHeaders().set('Content-Type', 'application/json');
+    const headers = this.createAuthHeaders();
     return this.http.put<Experimento>(`${this.apiUrl}/${id}`, experimentoData, { headers: headers });
   }
 

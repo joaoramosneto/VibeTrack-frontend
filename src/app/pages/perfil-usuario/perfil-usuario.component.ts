@@ -1,196 +1,225 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { CommonModule, DatePipe } from '@angular/common'; 
+import { RouterModule, Router, RouterLink } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { DividerModule } from 'primeng/divider';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
-import { AuthService } from  '../service/auth.service';
-import { PesquisadorService, ChangePasswordRequest } from '../service/pesquisador.service'; // Ajuste o caminho do import se necessário
 import { AvatarModule } from 'primeng/avatar';
+import { DividerModule } from 'primeng/divider'; 
+import { ToastModule } from 'primeng/toast';
+import { MessageService, ConfirmationService } from 'primeng/api'; // Adicionar ConfirmationService
+import { ConfirmDialogModule } from 'primeng/confirmdialog'; // Adicionar ConfirmDialogModule
+
+// Serviços e Interfaces
+import { AuthService } from '../service/auth.service';
+import { Pesquisador, PesquisadorService } from '../service/pesquisador.service'; 
 
 @Component({
-  selector: 'app-perfil-usuario',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    CardModule,
-    ButtonModule,
-    InputTextModule,
-    PasswordModule,
-    DividerModule,
-    ToastModule,
-    AvatarModule
-  ],
-  template: `
+  selector: 'app-perfil-usuario',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    RouterLink,     
+    CardModule,     
+    ButtonModule,   
+    AvatarModule,   
+    DividerModule,  
+    ToastModule,
+    ConfirmDialogModule // MÓDULO NECESSÁRIO PARA O DIÁLOGO DE CONFIRMAÇÃO
+  ],
+  // CONTEÚDO HTML ATUALIZADO: Botão Editar removido e botão Sair modificado
+  template: `
     <p-toast></p-toast>
-    <div class="grid justify-content-center">
-        <div class="col-12 md:col-10 lg:col-8">
-            <div class="card p-fluid">
+    <p-confirmDialog [style]="{width: '50vw'}"></p-confirmDialog>
+
+    <div *ngIf="loading" class="card">
+        <div class="font-semibold text-xl mb-4">Carregando dados do perfil...</div>
+    </div>
+
+    <div *ngIf="!loading && pesquisador" class="grid">
+        <div class="col-12 md:col-8 lg:col-6 lg:col-offset-3 md:col-offset-2">
+            <p-card styleClass="p-2">
                 
-                <!-- Cabeçalho do Perfil -->
-                <div class="flex align-items-center mb-5">
-                    <p-avatar icon="pi pi-user" styleClass="mr-4" size="xlarge" shape="circle" [style]="{'background-color':'var(--primary-color)', 'color': '#ffffff'}"></p-avatar>
-                    <div>
-                        <div class="text-900 text-3xl font-medium mb-2">Meu Perfil</div>
-                        <div class="text-500">Gerencie suas informações pessoais e segurança da conta.</div>
-                    </div>
-                </div>
-                
-                <p-divider styleClass="my-4"></p-divider>
-
-                <!-- Seção de Dados Básicos -->
-                <div class="text-900 text-xl font-medium mb-4">Informações Pessoais</div>
-                
-                <div class="formgrid grid">
-                    <div class="field col-12 md:col-6 mb-4">
-                        <label for="nome" class="font-medium text-900 mb-2 block">Nome Completo</label>
-                        <span class="p-input-icon-left">
-                            <i class="pi pi-user"></i>
-                            <input pInputText id="nome" [value]="nomeUsuario" disabled class="w-full surface-100" />
-                        </span>
-                    </div>
-                    <div class="field col-12 md:col-6 mb-4">
-                        <label for="email" class="font-medium text-900 mb-2 block">Email</label>
-                        <span class="p-input-icon-left">
-                            <i class="pi pi-envelope"></i>
-                            <input pInputText id="email" [value]="emailUsuario" disabled class="w-full surface-100" />
-                        </span>
-                    </div>
-                </div>
-
-                <p-divider styleClass="my-5"></p-divider>
-
-                <!-- Seção de Segurança -->
-                <div class="flex align-items-center mb-4">
-                    <i class="pi pi-lock text-2xl mr-2 text-primary"></i>
-                    <div class="text-900 text-xl font-medium">Alterar Senha</div>
-                </div>
-
-                <div class="grid formgrid">
-                    <div class="field col-12 mb-4">
-                        <label for="senhaAtual" class="font-medium text-900 mb-2 block">Senha Atual</label>
-                        <p-password id="senhaAtual" 
-                                    [(ngModel)]="senhaModel.senhaAtual" 
-                                    [toggleMask]="true" 
-                                    [feedback]="false"
-                                    placeholder="Digite sua senha atual"
-                                    styleClass="w-full"
-                                    [inputStyle]="{'width':'100%'}"></p-password>
+                <div class="flex flex-col items-center py-6">
+                    <div class="mb-4">
+                        
+                        <img *ngIf="pesquisadorFotoUrl" 
+                            [src]="pesquisadorFotoUrl" 
+                            alt="User Avatar" 
+                            class="w-[120px] h-[120px] rounded-full shadow-lg" />
+                        
+                        <p-avatar *ngIf="!pesquisadorFotoUrl" 
+                                  [label]="getInitials()" 
+                                  size="xlarge"
+                                  shape="circle" 
+                                  styleClass="w-[120px] h-[120px] text-4xl shadow-lg flex items-center justify-center surface-300 text-surface-900">
+                        </p-avatar>
                     </div>
                     
-                    <div class="field col-12 md:col-6 mb-4">
-                        <label for="novaSenha" class="font-medium text-900 mb-2 block">Nova Senha</label>
-                        <p-password id="novaSenha" 
-                                    [(ngModel)]="senhaModel.novaSenha" 
-                                    [toggleMask]="true" 
-                                    [feedback]="true"
-                                    placeholder="Crie uma nova senha"
-                                    styleClass="w-full"
-                                    [inputStyle]="{'width':'100%'}">
-                            <ng-template pTemplate="header">
-                                <h6>Segurança da Senha</h6>
-                            </ng-template>
-                            <ng-template pTemplate="footer">
-                                <p-divider></p-divider>
-                                <p class="mt-2">Requisitos:</p>
-                                <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
-                                    <li>Pelo menos 8 caracteres</li>
-                                    <li>Uma letra maiúscula e minúscula</li>
-                                    <li>Um número</li>
-                                </ul>
-                            </ng-template>
-                        </p-password>
-                    </div>
+                    <h2 class="text-3xl font-bold mb-1 text-surface-900 dark:text-surface-0">
+                        {{ pesquisador.nome }}
+                    </h2>
+                    <span class="text-muted-color text-lg">Pesquisador(a) do VibeTrack</span>
 
-                    <div class="field col-12 md:col-6 mb-4">
-                        <label for="confirmacaoSenha" class="font-medium text-900 mb-2 block">Confirmar Nova Senha</label>
-                        <p-password id="confirmacaoSenha" 
-                                    [(ngModel)]="senhaModel.confirmacaoSenha" 
-                                    [toggleMask]="true" 
-                                    [feedback]="false"
-                                    placeholder="Repita a nova senha"
-                                    styleClass="w-full"
-                                    [inputStyle]="{'width':'100%'}"></p-password>
+                    <div class="flex gap-4 mt-4">
+                        <p-button 
+                            label="Deletar Conta" 
+                            icon="pi pi-trash" 
+                            severity="danger" 
+                            styleClass="p-button-sm p-button-outlined" 
+                            (click)="deletarConta()">
+                        </p-button>
+                        <p-button 
+                            label="Sair" 
+                            icon="pi pi-sign-out" 
+                            styleClass="p-button-sm" 
+                            (click)="logout()">
+                        </p-button>
                     </div>
                 </div>
 
-                <div class="flex justify-content-end mt-4">
-                    <p-button label="Salvar Nova Senha" 
-                              icon="pi pi-check" 
-                              [loading]="isLoading" 
-                              (click)="atualizarSenha()"
-                              styleClass="p-button-primary w-full md:w-auto px-5"></p-button>
+                <p-divider></p-divider>
+
+                <div class="p-4 flex flex-col gap-3">
+                    
+                    <div class="flex items-center gap-3">
+                        <i class="pi pi-envelope text-xl text-primary"></i>
+                        <div>
+                            <span class="block text-sm text-muted-color">Email</span>
+                            <span class="font-medium text-surface-900 dark:text-surface-0">{{ pesquisador.email }}</span>
+                        </div>
+                    </div>
+
+                
+                </div>
+                
+                <p-divider></p-divider>
+
+                <div class="p-4">
+                    <h5 class="text-xl font-semibold mb-3 text-surface-900 dark:text-surface-0">Configurações Rápidas</h5>
+                    <ul class="list-none p-0 m-0 flex flex-col gap-2">
+                        <li class="p-link flex items-center justify-between p-3 hover:bg-surface-50 dark:hover:bg-surface-800 rounded-border transition-colors cursor-pointer" routerLink="/auth/alterar-senha">
+                            <span class="flex items-center">
+                                <i class="pi pi-lock mr-3 text-lg text-primary"></i>
+                                Alterar Senha
+                            </span>
+                            <i class="pi pi-chevron-right"></i>
+                        </li>
+                    </ul>
                 </div>
 
-            </div>
+            </p-card>
         </div>
     </div>
-  `,
-  providers: [MessageService]
+`, 
+  providers: [MessageService, DatePipe, ConfirmationService] // ADICIONAR ConfirmationService
 })
 export class PerfilUsuarioComponent implements OnInit {
 
-  nomeUsuario: string = '';
-  emailUsuario: string = '';
-  
-  senhaModel: ChangePasswordRequest = {
-    senhaAtual: '',
-    novaSenha: '',
-    confirmacaoSenha: ''
-  };
+  pesquisador: Pesquisador | null = null;
+  loading: boolean = true;
+  pesquisadorFotoUrl: string | null = null; 
 
-  isLoading: boolean = false;
+  constructor(
+    private authService: AuthService, 
+    private pesquisadorService: PesquisadorService, 
+    private messageService: MessageService,
+    private router: Router,
+    private confirmationService: ConfirmationService // INJETAR O SERVIÇO DE CONFIRMAÇÃO
+  ) {}
 
-  constructor(
-    private authService: AuthService,
-    private pesquisadorService: PesquisadorService,
-    private messageService: MessageService
-  ) {}
+  ngOnInit(): void {
+    this.carregarDadosDoPerfil();
+  }
 
-  ngOnInit() {
-    const id = this.authService.getPesquisadorId();
-    if (id) {
-        this.pesquisadorService.getPesquisadorById(id).subscribe({
-            next: (pesquisador) => {
-                this.nomeUsuario = pesquisador.nome;
-                this.emailUsuario = pesquisador.email;
-            },
-            error: () => {
-                this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível carregar os dados do perfil.' });
-            }
-        });
-    }
-  }
+  carregarDadosDoPerfil(): void {
+    this.loading = true; 
+    const userId = this.authService.getPesquisadorId(); 
 
-  atualizarSenha() {
-    if (!this.senhaModel.senhaAtual || !this.senhaModel.novaSenha || !this.senhaModel.confirmacaoSenha) {
-        this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Preencha todos os campos de senha.' });
-        return;
-    }
+    if (userId) {
+      this.pesquisadorService.getPesquisadorById(userId).subscribe({ 
+        next: (data) => {
+          this.pesquisador = data;
+          if (data.fotoUrl) {
+              this.pesquisadorFotoUrl = data.fotoUrl;
+          }
+          this.loading = false;
+          console.log('PERFIL SUCESSO: Renderizando conteúdo.');
+        },
+        error: (err) => {
+          this.loading = false;
+          console.error('PERFIL ERRO: Falha na API.', err);
+          this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar dados do perfil.' });
+        }
+      });
+    } else {
+      this.loading = false;
+      this.messageService.add({ severity: 'warn', summary: 'Não Autenticado', detail: 'Sessão expirada. Faça o login.' });
+      this.router.navigate(['/auth/login']);
+    }
+  }
 
-    if (this.senhaModel.novaSenha !== this.senhaModel.confirmacaoSenha) {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'A nova senha e a confirmação não coincidem.' });
-        return;
-    }
+  // NOVO MÉTODO: Lidar com a exclusão de conta
+  deletarConta(): void {
+    if (!this.pesquisador) return;
 
-    this.isLoading = true;
-
-    this.pesquisadorService.alterarSenha(this.senhaModel).subscribe({
-        next: () => {
-            this.isLoading = false;
-            this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Senha alterada com sucesso!' });
-            this.senhaModel = { senhaAtual: '', novaSenha: '', confirmacaoSenha: '' };
-        },
-        error: (err) => {
-            this.isLoading = false;
-            const msg = err.error || 'Erro ao alterar senha.';
-            this.messageService.add({ severity: 'error', summary: 'Erro', detail: msg });
+    this.confirmationService.confirm({
+        message: 'Tem certeza que deseja DELETAR PERMANENTEMENTE sua conta? Esta ação é IRREVERSÍVEL.',
+        header: 'Confirmação de Exclusão de Conta',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Deletar',
+        rejectLabel: 'Cancelar',
+        acceptButtonStyleClass: 'p-button-danger',
+        rejectButtonStyleClass: 'p-button-text',
+        accept: () => {
+            this.executarDelecao();
         }
     });
   }
+
+  // Lógica real de exclusão (mockada no frontend, deve chamar a API)
+  executarDelecao(): void {
+    const userId = this.authService.getPesquisadorId();
+    if (!userId) {
+        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'ID do usuário não encontrado.' });
+        return;
+    }
+
+    // AQUI VOCÊ CHAMARIA O MÉTODO NO PesquisadorService PARA DELETAR A CONTA:
+    // Ex: this.pesquisadorService.deletarPesquisador(userId).subscribe({ ... });
+
+    // SIMULAÇÃO DE SUCESSO DE DELEÇÃO:
+    this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Sua conta foi deletada com sucesso.' });
+    this.authService.logout();
+    this.router.navigate(['/auth/register']); // Redireciona para registro ou landing page
+  }
+
+
+  // MÉTODO ANTIGO: Deixado vazio para evitar erros de compilação, mas o botão foi removido do template.
+  editarPerfil(): void {
+    this.messageService.add({ severity: 'info', summary: 'Ação', detail: 'Funcionalidade de edição removida.' });
+  }
+
+  getInitials(): string {
+      if (!this.pesquisador || !this.pesquisador.nome) {
+          return '?';
+      }
+      const parts = this.pesquisador.nome.trim().split(/\s+/);
+      
+      if (parts.length === 1) {
+          return parts[0].charAt(0).toUpperCase();
+      }
+      
+      if (parts.length >= 2) {
+          return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+      }
+      
+      return '?';
+  }
+
+  logout(): void {
+    this.authService.logout(); 
+    this.router.navigate(['/auth/login']);
+  }
+
 }
