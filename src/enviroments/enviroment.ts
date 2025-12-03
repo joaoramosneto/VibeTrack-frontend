@@ -2,7 +2,5 @@
 
 export const environment = {
   production: false,
-  // VVVV TEMPORARIAMENTE PARA DEBUG LOCAL VVVV
-  apiUrl: 'http://localhost:8080/api'
-  // ^^^^ FIM DA CORREÇÃO ^^^^
+  apiUrl: 'https://vibetrack-backend-435280224805.southamerica-east1.run.app/api'
 };
