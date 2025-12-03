@@ -22,7 +22,7 @@ Após clonar o repositório, navegue até o diretório do projeto e utilize o ge
 
 ```bash
 npm install
-
+```
 
 
 ## 2. Servidor de Desenvolvimento
@@ -30,13 +30,13 @@ Para iniciar o servidor de desenvolvimento local, utilize o comando do Angular C
 
 ```bash
 ng serve
-
+```
 
 ## 3. Construção (Build)
 Para gerar os artefatos de build do projeto, execute:
 
 ```bash
 ng build
-
+```
 ## 4.Recursos Adicionais
 Para mais informações sobre o Angular CLI, visite a página Angular CLI Overview and Command Reference. https://angular.dev/tools/cli
