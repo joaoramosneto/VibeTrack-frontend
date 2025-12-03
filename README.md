@@ -1,59 +1,78 @@
-# Sakai19
+# VibeTrack - Frontend (TCC)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.6.
+Este é o repositório do frontend do projeto VibeTrack, desenvolvido com **Angular CLI** versão **19.0.6**.
 
-## Development server
+O projeto utiliza o pacote `@angular-devkit/build-angular:application` para build e a biblioteca de componentes **PrimeNG**, além de **Tailwind CSS** para estilização.
 
-To start a local development server, run:
+## Pré-requisitos
+
+Para executar este projeto localmente, é necessário ter o **Node.js** e o **Angular CLI** instalados.
+
+1.  **Node.js**: Recomenda-se a versão mais recente LTS.
+2.  **Angular CLI**: Instale globalmente se ainda não tiver:
+    ```bash
+    npm install -g @angular/cli
+    ```
+
+***
+
+## 1. Instalação do Projeto
+
+Após clonar o repositório, navegue até o diretório do projeto e utilize o gerenciador de pacotes **npm** ou **yarn** para instalar as dependências:
+
+```bash
+npm install
+# ou
+yarn install
+
+
+
+
+## 
+Para facilitar a subida e execução do projeto pelos seus orientadores do TCC, editei o arquivo README.md com um foco maior nos passos de configuração e execução.
+
+O novo conteúdo do README.md (em Português) é o seguinte:
+
+Markdown
+# VibeTrack - Frontend (TCC)
+
+Este é o repositório do frontend do projeto VibeTrack, desenvolvido com **Angular CLI** versão **19.0.6**.
+
+O projeto utiliza o pacote `@angular-devkit/build-angular:application` para build e a biblioteca de componentes **PrimeNG**, além de **Tailwind CSS** para estilização.
+
+## Pré-requisitos
+
+Para executar este projeto localmente, é necessário ter o **Node.js** e o **Angular CLI** instalados.
+
+1.  **Node.js**: Recomenda-se a versão mais recente LTS.
+2.  **Angular CLI**: Instale globalmente se ainda não tiver:
+    ```bash
+    npm install -g @angular/cli
+    ```
+
+***
+
+## 1. Instalação do Projeto
+
+Após clonar o repositório, navegue até o diretório do projeto e utilize o gerenciador de pacotes **npm** para instalar as dependências:
+
+```bash
+npm install
+
+
+
+## 2. Servidor de Desenvolvimento
+Para iniciar o servidor de desenvolvimento local, utilize o comando do Angular CLI:
 
 ```bash
 ng serve
-```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+## 3. Construção (Build)
+Para gerar os artefatos de build do projeto, execute:
 
 ```bash
 ng build
-```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## 4.Recursos Adicionais
+Para mais informações sobre o Angular CLI, visite a página Angular CLI Overview and Command Reference. https://angular.dev/tools/cli
