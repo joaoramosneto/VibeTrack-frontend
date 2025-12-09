@@ -30,12 +30,10 @@ export interface ChangePasswordRequest {
 })
 export class PesquisadorService {
 
-  // Garante que a URL base termine sem barra e adiciona o endpoint
   private apiUrl = `${environment.apiUrl}/pesquisadores`;
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
-  // Método auxiliar para criar o cabeçalho com o Token
   private createAuthHeaders(): HttpHeaders {
     const token = this.authService.getToken();
     return new HttpHeaders({
@@ -43,27 +41,30 @@ export class PesquisadorService {
     });
   }
 
-  // Criar novo pesquisador (Geralmente rota pública, mas se precisar de token, adicione os headers)
   criarPesquisador(pesquisadorData: PesquisadorRequest): Observable<any> {
     return this.http.post<any>(this.apiUrl, pesquisadorData);
   }
   
-  // Buscar por ID
   getPesquisadorById(id: number): Observable<Pesquisador> {
     const headers = this.createAuthHeaders();
     return this.http.get<Pesquisador>(`${this.apiUrl}/${id}`, { headers: headers });
   }
 
-  // LISTAR TODOS (Método que vamos usar agora)
   listarTodos(): Observable<Pesquisador[]> {
     const headers = this.createAuthHeaders();
     return this.http.get<Pesquisador[]>(this.apiUrl, { headers: headers });
   }
 
-  // Alterar senha
+  // VVVV NOVO MÉTODO: DELETAR PESQUISADOR VVVV
+  deletarPesquisador(id: number): Observable<void> {
+    const headers = this.createAuthHeaders();
+    // Faz um DELETE para /api/pesquisadores/{id}
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: headers });
+  }
+  // ^^^^ FIM DO NOVO MÉTODO ^^^^
+
   alterarSenha(dadosSenha: ChangePasswordRequest): Observable<any> {
     const headers = this.createAuthHeaders();
-    // responseType: 'text' é importante se o backend retornar apenas uma String e não um JSON
     return this.http.put(`${this.apiUrl}/me/senha`, dadosSenha, { headers: headers, responseType: 'text' });
   }
 }

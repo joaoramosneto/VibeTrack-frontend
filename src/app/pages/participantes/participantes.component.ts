@@ -1,4 +1,3 @@
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -8,9 +7,12 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
+// VVVV CORREÇÃO: Adicionar o módulo visual ConfirmDialogModule VVVV
+import { ConfirmDialogModule } from 'primeng/confirmdialog'; 
 
 // Serviços e Interfaces
-import { MessageService } from 'primeng/api';
+// CORREÇÃO: Importar ConfirmationService
+import { MessageService, ConfirmationService } from 'primeng/api'; 
 import { ParticipanteService, Participante } from '../../layout/service/participante.service'; 
 
 @Component({
@@ -22,11 +24,13 @@ import { ParticipanteService, Participante } from '../../layout/service/particip
     ButtonModule,
     RippleModule,
     ToastModule,
-    ToolbarModule
+    ToolbarModule,
+    // VVVV INCLUÍDO NO ARRAY DE IMPORTS VVVV
+    ConfirmDialogModule 
   ],
   templateUrl: './participantes.component.html',
-  providers: [MessageService]
-  // REMOVI A LINHA 'styleUrls' DAQUI
+  // Provedores necessários para a exclusão
+  providers: [MessageService, ConfirmationService] 
 })
 export class ParticipanteComponent implements OnInit {
 
@@ -35,7 +39,8 @@ export class ParticipanteComponent implements OnInit {
 
   constructor(
     private participanteService: ParticipanteService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService // Injetado
   ) {}
 
   ngOnInit(): void {
@@ -49,11 +54,9 @@ export class ParticipanteComponent implements OnInit {
       next: (data) => {
         this.participantes = data;
         this.isLoading = false;
-        console.log("Participantes carregados:", data);
       },
       error: (err) => {
         console.error('Erro ao buscar participantes:', err);
-        // Exibe o erro visualmente usando o Toast do PrimeNG
         this.messageService.add({ 
             severity: 'error', 
             summary: 'Erro', 
@@ -64,8 +67,35 @@ export class ParticipanteComponent implements OnInit {
     });
   }
   
-  // Atalho para o botão de refresh
   refresh() {
     this.carregarParticipantes();
+  }
+
+  deletarParticipante(participante: Participante) {
+    this.confirmationService.confirm({
+      message: `Tem certeza que deseja excluir o participante ${participante.nomeCompleto}?`,
+      header: 'Confirmar Exclusão',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.participanteService.deletarParticipante(participante.id).subscribe({
+          next: () => {
+            this.participantes = this.participantes.filter(p => p.id !== participante.id);
+            this.messageService.add({ 
+              severity: 'success', 
+              summary: 'Sucesso', 
+              detail: `Participante ${participante.nomeCompleto} excluído.` 
+            });
+          },
+          error: (error) => {
+            console.error(error);
+            this.messageService.add({ 
+              severity: 'error', 
+              summary: 'Erro', 
+              detail: 'Falha ao excluir. Verifique se o participante não está associado a experimentos.' 
+            });
+          }
+        });
+      }
+    });
   }
 }
